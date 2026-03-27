@@ -1,0 +1,48 @@
+{
+    "autoDocstring.docstringFormat": "sphinx",
+    "csv-preview.separator": "\\;",
+    "editor.rulers": [
+        88
+    ],
+    "files.eol": "\n",
+    "isort.check": true,
+    "opensslutils.opensslPath": "C:/Zimmermann/Git/mingw64/bin/openssl",
+    "plantuml.jar": "C:/Zimmermann/plantuml/plantuml.jar",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnType": true
+    },
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "black-formatter.args": [
+        "---preview"
+    ],
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#ff8a1f",
+        "activityBar.background": "#e96a0a",
+        "activityBar.foreground": "#fff5ea",
+        "activityBar.inactiveForeground": "#fff5eaaa",
+        "activityBarBadge.background": "#c84c05",
+        "activityBarBadge.foreground": "#fff5ea",
+        "commandCenter.border": "#ff9f4a99",
+        "editorCursor.foreground": "#ff9d3a",
+        "editorLineNumber.activeForeground": "#ffb25e",
+        "focusBorder": "#ff9d3a",
+        "list.highlightForeground": "#ffb25e",
+        "sash.hoverBorder": "#ff8a1f",
+        "statusBar.background": "#cc4f06",
+        "statusBar.foreground": "#fff5ea",
+        "statusBarItem.hoverBackground": "#e36609",
+        "statusBarItem.remoteBackground": "#cc4f06",
+        "statusBarItem.remoteForeground": "#fff5ea",
+        "tab.activeBorderTop": "#ff9d3a",
+        "titleBar.activeBackground": "#b64302",
+        "titleBar.activeForeground": "#fff5ea",
+        "titleBar.inactiveBackground": "#b64302aa",
+        "titleBar.inactiveForeground": "#fff5eaaa"
+    },
+    "peacock.color": "#e96a0a"
+}
