@@ -1,0 +1,262 @@
+# Git Workflow Guide
+
+Dieses Projekt unterstützt zwei Git-Workflows, je nach Projektphase und Präferenz.
+
+---
+
+## Übersicht der Workflows
+
+| Aspekt | Variante 1: Direct-Commit | Variante 2: Feature-Branches |
+|--------|---------------------------|------------------------------|
+| **Komplexität** | Einfach | Moderat |
+| **Code Review** | Keine | Über PRs |
+| **Geeignet für** | Kleine Teams, schnelle Iterationen | Saubere Historie, mehrere Entwickler |
+| **Konfliktrisiko** | Höher | Niedriger |
+
+---
+
+## Variante 1: Direct-Commit (Einfacher Workflow)
+
+**Ideal für:** Schnelle Prototypen, kleine Teams mit guter Kommunikation
+
+### 1. Schritt: Auf den Stand kommen
+
+Starte immer mit den aktuellsten Änderungen vom Server:
+
+```bash
+git pull origin main
+```
+
+### 2. Schritt: Deine Änderungen vormerken
+
+Alle geänderten Dateien zum Commit vorbereiten:
+
+```bash
+git add .
+```
+
+### 3. Schritt: Änderungen lokal sichern
+
+Mit aussagekräftiger Nachricht committen:
+
+```bash
+git commit -m "Beschreibung der Änderungen"
+```
+
+### 4. Schritt: Server-Änderungen einholen (WICHTIG!)
+
+Vor dem Push müssen eventuelle Änderungen des Kollegen geholt werden:
+
+```bash
+git pull origin main
+```
+
+**Falls Konflikte entstehen:** Siehe [Konfliktlösung](#konfliktlösung)
+
+### 5. Schritt: Hochladen
+
+Deine Änderungen auf den Server pushen:
+
+```bash
+git push origin main
+```
+
+### Kompletter Befehlsblock für Copy & Paste
+
+```bash
+git pull origin main
+git add .
+git commit -m "Deine Nachricht hier"
+git pull origin main
+git push origin main
+```
+
+---
+
+## Variante 2: Feature-Branches (Empfohlener Workflow)
+
+**Ideal für:** Saubere Git-Historie, Code Reviews, größere Features
+
+### Der tägliche Start
+
+Bevor ihr anfangt, stellt sicher, dass ihr aktuell seid:
+
+```bash
+git checkout main
+git pull origin main
+```
+
+---
+
+### 1. Schritt: Feature-Branch erstellen
+
+Für jedes Feature einen neuen Branch (z.B. "song-entity", "auth-fix"):
+
+```bash
+git checkout -b feature/name-deines-features
+```
+
+**Naming-Konvention:**
+
+- `feature/entity-artist` - für neue Features
+- `fix/login-bug` - für Bugfixes
+- `docs/update-readme` - für Dokumentation
+
+---
+
+### 2. Schritt: Coden & lokal speichern
+
+Arbeitet auf eurem Branch und committet regelmäßig (lieber oft mit kleinen Änderungen als selten mit großen):
+
+```bash
+git add .
+git commit -m "Aussagekräftige Nachricht"
+```
+
+**Git Commit Best Practices:**
+
+- ✅ `git commit -m "Add user authentication"`
+- ✅ `git commit -m "Fix database connection timeout"`
+- ❌ `git commit -m "update"`
+- ❌ `git commit -m "asdf"`
+
+---
+
+### 3. Schritt: Branch auf GitHub hochladen
+
+Damit andere eure Arbeit sehen:
+
+```bash
+git push origin feature/name-deines-features
+```
+
+---
+
+### 4. Schritt: Pull Request (PR) auf GitHub erstellen
+
+1. Geht auf [GitHub Repository](https://github.com)
+2. Ihr seht den gelben Button: **"Compare & pull request"** → klicken
+3. Schreibt eine aussagekräftige Beschreibung, was ihr gemacht habt
+4. Setzt den Reviewer (euer Teamkollege)
+5. Klickt **"Create pull request"**
+
+**Was passiert jetzt?**
+
+- Euer Kollege kann den Code reviewen
+- GitHub prüft auf Konflikte
+- Ihr könnt noch weitere Commits pushen, bis alles OK ist
+
+---
+
+### 5. Schritt: Merge auf GitHub
+
+Hat der Reviewer alles geprüft und freigegeben:
+
+1. Klickt **"Merge pull request"** auf GitHub
+2. Klickt **"Confirm merge"**
+3. Optionale: "Delete branch" klicken (räumt auf)
+
+Der Feature-Branch fließt jetzt in den `main`!
+
+---
+
+### 6. Schritt: Aufräumen & von vorne beginnen
+
+Nach dem Merge ist euer lokaler Branch veraltet:
+
+```bash
+# Zurück zum main
+git checkout main
+
+# Aktuellen main holen
+git pull origin main
+
+# Lokalen Feature-Branch löschen
+git branch -d feature/name-deines-features
+```
+
+---
+
+## Konfliktlösung
+
+**Konflikte entstehen, wenn:**
+
+- Zwei Entwickler die gleiche Datei an der gleichen Stelle ändern
+- Und ihr versucht zu mergen
+
+### Konflikte beheben
+
+1. **Konflikt wird dir mitgeteilt:**
+
+   ```bash
+   git pull origin main
+   # CONFLICT (content merge): Merge conflict in src/file.py
+   ```
+
+2. **Konflikt-Marker finden:** In den betroffenen Datei-Teilen sehen ungefähr so aus:
+
+   ```python
+   <<<<<<< HEAD
+   deine Version des Codes
+   =======
+   die Version vom anderen
+   >>>>>>> origin/main
+   ```
+
+3. **Wählt die richtige Version oder kombiniert beide:**
+   - Entfernt die Konflikt-Marker (`<<<<<<<`, `=======`, `>>>>>>>`)
+   - Entscheidet welcher Code bleiben soll
+   - Speichert die Datei
+
+4. **Speichert den Fix:**
+
+   ```bash
+   git add .
+   git commit -m "Resolve merge conflict"
+   git push origin main
+   ```
+
+---
+
+## Nützliche Git-Befehle
+
+| Befehl | Wirkung |
+|--------|--------|
+| `git status` | Zeigt, welche Dateien geändert wurden |
+| `git log` | Zeigt die letzten Commits |
+| `git branch` | Listet alle lokalen Branches auf |
+| `git branch -a` | Listet alle Branches (lokal + remote) auf |
+| `git checkout main` | Wechselt zu einem Branch |
+| `git diff` | Zeigt die Unterschiede zwischen Versionen |
+| `git reset HEAD~1` | Macht den letzten Commit rückgängig (lokal) |
+| `git stash` | Speichert Änderungen temporär (z.B. vor Branch-Wechsel) |
+
+---
+
+## Pro-Tipps
+
+- **Committet regelmäßig** - Viele kleine Commits sind besser als ein großer
+- **Pullt vor dem Start** - Verhindert Konflikte später
+- **Aussagekräftige Commit-Messages** - Hilft der ganzen Historie
+- **Nutzt Feature-Branches** - Auch wenn ihr allein arbeitet (saubere Histoire)
+- **Schreibt PRs auch für euch selbst** - Gute Dokumentation eures Codes
+
+---
+
+## FAQ
+
+**F: Ich habe etwas falsch committed. Was tun?**
+> `git reset HEAD~1` macht den letzten Commit rückgängig (lokal). Danach könnt ihr es korrigieren.
+
+**F: Ich bin auf dem falschen Branch. Wie wechsel ich?**
+> `git checkout main` (oder zu einem anderen Branch)
+
+**F: Meine Änderungen wurden nicht gepusht. Warum?**
+> Wahrscheinlich ein Konflikt bei `git pull`. Seht euch den Status an: `git status`
+
+**F: Kann ich einen gepushten Commit löschen?**
+> Mit `git revert` oder `git reset` (aber vorsichtig ab Remote!). Besser im Team absprechen.
+
+---
+
+Viel Erfolg beim Coden!

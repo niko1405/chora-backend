@@ -9,7 +9,7 @@
     "opensslutils.opensslPath": "C:/Zimmermann/Git/mingw64/bin/openssl",
     "plantuml.jar": "C:/Zimmermann/plantuml/plantuml.jar",
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.formatOnType": true
     },
     "python.analysis.autoImportCompletions": true,

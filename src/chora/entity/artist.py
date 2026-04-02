@@ -31,7 +31,7 @@ class Artist(Base):
     email: Mapped[str] = mapped_column(unique=True)
     """Die eindeutige Emailadresse."""
 
-    song: Mapped[list[Song]] = relationship(
+    songs: Mapped[list[Song]] = relationship(
         back_populates="artist",
         cascade="save-update, delete",
     )
