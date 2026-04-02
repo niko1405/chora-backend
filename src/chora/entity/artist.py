@@ -3,7 +3,7 @@
 from datetime import date, datetime
 from typing import Any, Self
 
-from sqlalchemy import Identity, func
+from sqlalchemy import Identity
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from chora.entity.base import Base
@@ -47,14 +47,14 @@ class Artist(Base):
     """Die Versionsnummer für optimistische Synchronisation."""
 
     erzeugt: Mapped[datetime | None] = mapped_column(
-        insert_default=func.now(),
+        insert_default=datetime.now,
         default=None,
     )
     """Der Zeitstempel für das initiale INSERT in die DB-Tabelle."""
 
     aktualisert: Mapped[datetime | None] = mapped_column(
-        insert_default=func.now(),
-        onupdate=func.now(),
+        insert_default=datetime.now,
+        onupdate=datetime.now,
         default=None,
     )
     """Der Zeitstempel vom letzen UPDATE in der DB-Tabelle."""
