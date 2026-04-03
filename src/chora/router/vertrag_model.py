@@ -1,5 +1,6 @@
 """Pydantic-Modell für die Vertrag-Entität."""
 
+from datetime import date
 from typing import Annotated
 
 from pydantic import BaseModel, Field, StringConstraints
@@ -11,6 +12,12 @@ __all__ = ["VertragModel"]
 
 class VertragModel(BaseModel):
     """Pydantic Modell für die Darstellung eines Vertrags in der API."""
+
+    startdatum: date
+    """Startdatum des Vertrags im Format 'YYYY-MM-DD'."""
+
+    enddatum: date
+    """Enddatum des Vertrags im Format 'YYYY-MM-DD'."""
 
     dauer: Annotated[int, Field(gt=0)]
     """Die Dauer des Vertrags in Monaten."""
