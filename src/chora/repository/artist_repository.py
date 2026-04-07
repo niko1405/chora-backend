@@ -8,11 +8,11 @@ from sqlalchemy.orm import Session, joinedload
 from chora.entity import Artist
 
 
-__all__ = ["ChoraRepository"]
+__all__ = ["ArtistRepository"]
 
 
-class ChoraRepository:
-    """Repository-Klasse mit CRUD Methoden für Chora-Objekte."""
+class ArtistRepository:
+    """Repository-Klasse mit CRUD Methoden für Artist-Objekte."""
 
     def find_by_id(self,artist_id: int | None, session: Session) -> Artist | None:
         """Artist anhand der ID suchen.
