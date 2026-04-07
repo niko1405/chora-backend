@@ -9,6 +9,7 @@ from chora.repository.pageable import Pageable
 from chora.repository.session_factory import Session
 from chora.repository.slice import Slice
 from chora.service.artist_dto import ArtistDTO
+from chora.service.exceptions import ForbiddenError, NotFoundError
 
 __all__: list[str] = ["ArtistService"]
 
@@ -48,7 +49,6 @@ class ArtistService:
                     raise NotFoundError(artist_id=artist_id)
                 logger.debug("Keine Berechtigung für die Suche nach Künstler mit ID {}", artist_id)
                 raise ForbiddenError
-                # TODO Exception Klassen implementieren
 
             if artist.username != user.username and not user_is_admin:
                 logger.debug(
