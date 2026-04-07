@@ -1,4 +1,5 @@
 """Geschäftslogik für die Künstlerverwaltung."""
+from chora.repository.artist_repository import ArtistRepository
 
 from typing import Final, Mapping
 

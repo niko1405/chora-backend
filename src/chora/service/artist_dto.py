@@ -33,7 +33,7 @@ class ArtistDTO:
     vertrag: VertragDTO
     """Vertrag des Artists."""
 
-    username: str | None 
+    username: str | None
     """Benutzername des Artists, falls vorhanden."""
 
     def __init__(self, artist: Artist) -> None:
