@@ -115,3 +115,33 @@ class ArtistRepository:
         artist: Final = session.scalar(statement)
         logger.debug("artist={}", artist)
         return artist
+
+    def _find_by_name(
+        self,
+        teil: str,
+        pageable: Pageable,
+        session: Session,
+    ) -> Slice[Artist]:
+        logger.debug("teil={}", teil)
+        offset = pageable.number * pageable.size
+        # https://docs.sqlalchemy.org/en/20/orm/session_basics.html#querying
+        statement: Final = (
+            (
+                select(Artist)
+                .options(joinedload(Artist.vertrag))
+                .filter(Artist.name.ilike(f"%{teil}%"))
+                .limit(pageable.size)
+                .offset(offset)
+            )
+            if pageable.size != 0
+            else (
+                select(Artist)
+                .options(joinedload(Artist.vertrag))
+                .filter(Artist.name.ilike(f"%{teil}%"))
+            )
+        )
+        artists: Final = session.scalars(statement).all()
+        anzahl: Final = self._count_rows_name(teil, session)
+        artist_slice: Final = Slice(content=tuple(artists), total_elements=anzahl)
+        logger.debug("{}", artist_slice)
+        return artist_slice
