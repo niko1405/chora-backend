@@ -97,3 +97,21 @@ class ArtistRepository:
         statement: Final = select(func.count()).select_from(Artist)
         count: Final = session.execute(statement).scalar()
         return count if count is not None else 0
+
+    def _find_by_email(self, email: str, session: Session) -> Artist | None:
+        """Artist-Objekt anhand der E-Mail suchen.
+
+        :param email: E-Mail des gesuchten Artist-Objekts
+        :param session: Session-Objekt für die DB-Verbindung
+        :return: Gefundenes Artist-Objekt oder None, falls nicht gefunden
+        :rtype: Artist | None
+        """
+        logger.debug("email={}", email)
+        statement: Final = (
+            select(Artist)
+            .options(joinedload(Artist.vertrag))
+            .where(func.lower(Artist.email) == email.lower())
+        )
+        artist: Final = session.scalar(statement)
+        logger.debug("artist={}", artist)
+        return artist
