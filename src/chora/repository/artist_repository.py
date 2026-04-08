@@ -1,4 +1,5 @@
 """Repository fuer die Chora-Objekte."""
+from pywin.debugger.fail import a
 from win32timezone import log
 
 from collections.abc import Mapping
@@ -73,3 +74,23 @@ class ArtistRepository:
                 logger.debug("artists={}", artists)
                 return artists
         return Slice(content=(), total_elements=0)
+
+    def _find_all(self, pageable: Pageable, session: Session) -> Slice[Artist]:
+        """Alle Artist-Objekte mit Pagination suchen."""
+        logger.debug("aufgerufen")
+        offset: int = pageable.number * pageable.size
+        statement: Final = (
+            (
+                select(Artist)
+                .options(joinedload(Artist.vertrag))
+                .limit(pageable.size)
+                .offset(offset)
+            )
+            if pageable.size != 0
+            else (select(Artist).options(joinedload(Artist.vertrag)))
+        )
+        artists: Final = session.scalars(statement).all()
+        anzahl: Final = self._count_all_rows(session)
+        artist_slice: Final = Slice(content=tuple(artists), total_elements=anzahl)
+        logger.debug("artist_slice={}", artist_slice)
+        return artist_slice
