@@ -1,12 +1,10 @@
 """Repository fuer die Chora-Objekte."""
-from pywin.debugger.fail import a
-from win32timezone import log
 
 from collections.abc import Mapping
 from typing import Final
 
 from loguru import logger
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from chora.entity import Artist
@@ -48,8 +46,8 @@ class ArtistRepository:
         pageable: Pageable,
         session: Session,
         ) -> Slice[Artist]:
-        """Artist-Objekte anhand von Suchparametern suchen."""
-        """
+        """Artist-Objekte anhand von Suchparametern suchen.
+
         :param suchparameter: Mapping mit Suchparametern
         :param pageable: Pageable-Objekt für die Paginierung
         :param session: Session-Objekt für die DB-Verbindung
@@ -94,3 +92,8 @@ class ArtistRepository:
         artist_slice: Final = Slice(content=tuple(artists), total_elements=anzahl)
         logger.debug("artist_slice={}", artist_slice)
         return artist_slice
+
+    def _count_all_rows(self, session: Session) -> int:
+        statement: Final = select(func.count()).select_from(Artist)
+        count: Final = session.execute(statement).scalar()
+        return count if count is not None else 0
