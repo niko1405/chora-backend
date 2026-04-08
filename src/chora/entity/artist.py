@@ -22,6 +22,9 @@ class Artist(Base):
     geburtsdatum: Mapped[date]
     """Das Geburtsdatum."""
 
+    username: Mapped[str | None]
+    """Der Benutzername für Login"""
+
     id: Mapped[int | None] = mapped_column(
         Identity(start=1000),
         primary_key=True,
