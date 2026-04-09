@@ -10,6 +10,7 @@ __all__ = [
     "VersionOutdatedError",
 ]
 
+
 class EmailExistsError(Exception):
     """Exception, wenn die Email bereits existiert."""
 
@@ -21,18 +22,22 @@ class EmailExistsError(Exception):
         super().__init__(f"Die Email '{email}' existiert bereits.")
         self.email = email
 
+
 class ForbiddenError(Exception):
     """Exception, wenn der Benutzer nicht berechtigt ist, eine Aktion durchzuführen."""
 
     def __init__(self) -> None:
         """Initialisiert die Exception."""
-        super().__init__("Der Benutzer ist nicht berechtigt, diese Aktion durchzuführen.")
+        super().__init__(
+            "Der Benutzer ist nicht berechtigt, diese Aktion durchzuführen."
+        )
+
 
 class NotFoundError(Exception):
     """Exception, wenn eine Ressource nicht gefunden wurde."""
 
     def __init__(
-        self, artist_id: int | None = None, 
+        self, artist_id: int | None = None,
         suchparameter: Mapping[str, str] | None = None) -> None:
         """Initialisiert die Exception.
 
@@ -42,6 +47,7 @@ class NotFoundError(Exception):
         super().__init__("Not Found")
         self.artist_id = artist_id
         self.suchparameter = suchparameter
+
 
 class UsernameExistsError(Exception):
     """Exception, wenn der Benutzername bereits existiert."""
@@ -53,6 +59,7 @@ class UsernameExistsError(Exception):
         """
         super().__init__(f"Der Benutzername '{username}' existiert bereits.")
         self.username = username
+
 
 class VersionOutdatedError(Exception):
     """Exception, wenn die Version eines Objekts veraltet ist."""
