@@ -1,5 +1,6 @@
 """Pydantic-Modell für die Song-Entität."""
 
+from datetime import date
 from typing import Annotated
 
 from pydantic import BaseModel, Field, StringConstraints
@@ -21,8 +22,11 @@ class SongModel(BaseModel):
     ]
     """Der Titel des Songs."""
 
-    genre: list[Genre]
-    """Das Genre des Songs."""
+    genres: list[Genre]
+    """Die Genres des Songs."""
+
+    erscheinungsdatum: date
+    """Das Erscheinungsdatum des Songs."""
 
     dauer: Annotated[int, Field(gt=0)]
     """Die Dauer des Songs in Sekunden."""
