@@ -162,6 +162,25 @@ class ArtistRepository:
         count: Final = session.execute(statement).scalar()
         return count if count is not None else 0
 
+    def exists_email(self, email: str, session: Session) -> bool:
+        """Pruefen, ob eine E-Mail bereits existiert.
+
+        :param email: Emailadresse
+        :param patient_id: eigene Patient-ID
+        :param session: Session für SQLAlchemy
+        :return: True, falls es die Emailadresse bereits gibt, False sonst
+        :rtype: bool
+        """
+        logger.debug("email={}", email)
+
+        statement: Final = (
+            select(Artist.id)
+            .where(func.lower(Artist.email) == email.lower())
+            .limit(1)
+        )
+        result: Final = session.scalar(statement)
+        return result is not None
+
     def create(self, artist: Artist, session: Session) -> Artist:
         """Einen Artist anlegen."""
         logger.debug("artist={}", artist)
