@@ -12,6 +12,7 @@ from chora.repository.pageable import Pageable
 from chora.repository.slice import Slice
 from chora.router.constants import ETAG, IF_NONE_MATCH, IF_NONE_MATCH_MIN_LEN
 from chora.router.page import Page
+from chora.security.user import User
 from chora.service.artist_dto import ArtistDTO
 from chora.service.artist_service import ArtistService
 
