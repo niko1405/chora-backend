@@ -1,49 +1,46 @@
-"""Pydantic Update Modell für die Darstellung der Artist-Entität in der API."""
+"""Pydantic PATCH Modell für die Darstellung der Artist-Entität in der API."""
 
+from datetime import date
+from typing import Annotated, Any, Self
 
-from typing import Any, Self
-
-from pydantic import ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, StringConstraints, model_validator
 
 from chora.entity.song import Song
 from chora.entity.vertrag import Vertrag
-from chora.router.artist_base_model import ArtistBaseModel
 from chora.router.song_model import SongModel
 from chora.router.vertrag_model import VertragModel
 
-__all__ = ["ArtistUpdateModel"]
+__all__ = ["ArtistPatchModel"]
 
 
-class ArtistUpdateModel(ArtistBaseModel):
-    """Pydantic Modell für die Aktualisierung eines Artists."""
+class ArtistPatchModel(BaseModel):
+    """Pydantic Modell für die teilweise Aktualisierung eines Artists."""
 
+    name: Annotated[
+        str | None,
+        StringConstraints(
+            pattern=r"^[a-zA-Z\s]+$",
+            min_length=1,
+            max_length=100,
+        ),
+    ] = None
+    geburtsdatum: date | None = None
+    email: EmailStr | None = None
     vertrag: VertragModel | None = None
-    """Optionaler Vollersatz für den Vertrag."""
-
     songs: list[Any] | None = None
-    """Optionaler Vollersatz für Songs als Modelle oder reine IDs."""
 
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "name": "OneDirection",
-                "geburtsdatum": "1990-01-01",
                 "email": "onedirection@example.com",
                 "vertrag": {
                     "startdatum": "2026-01-01",
                     "enddatum": "2028-12-31",
                     "dauer": 36,
                     "firma": "Universal",
-                    "gehalt": 250000.0
+                    "gehalt": 250000.0,
                 },
-                "songs": [
-                    {
-                        "titel": "My Song",
-                        "genres": ["ROCK", "POP"],
-                        "erscheinungsdatum": "2026-01-01",
-                        "dauer": 215
-                    }
-                ]
+                "songs": [1001, 1002],
             }
         }
     )
@@ -96,10 +93,9 @@ class ArtistUpdateModel(ArtistBaseModel):
         if not isinstance(songs_raw, list):
             return None
 
-        songs_list = songs_raw
         return [
             SongModel.model_validate(song_raw).to_song()
-            for song_raw in songs_list
+            for song_raw in songs_raw
             if isinstance(song_raw, dict)
         ]
 

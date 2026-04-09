@@ -1,13 +1,16 @@
 """Geschäftslogik für die Künstlerverwaltung."""
-from chora.repository.artist_repository import ArtistRepository
 
-from typing import Final, Mapping
+from collections.abc import Mapping
+from typing import Final
 
 from loguru import logger
 
+from chora.repository.artist_repository import ArtistRepository
 from chora.repository.pageable import Pageable
 from chora.repository.session_factory import Session
 from chora.repository.slice import Slice
+from chora.security.role import Role
+from chora.security.user import User
 from chora.service.artist_dto import ArtistDTO
 from chora.service.exceptions import ForbiddenError, NotFoundError
 
@@ -47,7 +50,10 @@ class ArtistService:
                     logger.debug("NotFoundError: {}", message)
                     # "Throw Exceptions Instead of Returning Errors"
                     raise NotFoundError(artist_id=artist_id)
-                logger.debug("Keine Berechtigung für die Suche nach Künstler mit ID {}", artist_id)
+                logger.debug(
+                    "Keine Berechtigung für die Suche nach Künstler mit ID {}",
+                    artist_id
+                )
                 raise ForbiddenError
 
             if artist.username != user.username and not user_is_admin:
@@ -87,7 +93,7 @@ class ArtistService:
             )
 
             if len(artists_slice.content) == 0:
-                raise NotFoundError(queryparams=queryparams)
+                raise NotFoundError(suchparameter=queryparams)
 
             artist_dtos: Final = tuple(
                 ArtistDTO(artist=artist) for artist in artists_slice.content
@@ -98,5 +104,3 @@ class ArtistService:
         # TODO Ggf. Excelsheet erstellen mit den Suchergebnissen
         logger.debug("{}", artist_dtos)
         return Slice(content=artist_dtos, total_elements=artists_slice.total_elements)
-
-# TODO Weitere Methoden für die Geschäftslogik implementieren, zB find.

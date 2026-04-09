@@ -3,7 +3,7 @@
 from dataclasses import asdict
 from typing import Annotated, Any, Final
 
-from fastapi import APIRouter, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.responses import JSONResponse
 from loguru import logger
 
@@ -11,6 +11,7 @@ from chora.entity.artist import Artist
 from chora.repository.pageable import Pageable
 from chora.repository.slice import Slice
 from chora.router.constants import ETAG, IF_NONE_MATCH, IF_NONE_MATCH_MIN_LEN
+from chora.router.dependencies import get_service
 from chora.router.page import Page
 from chora.security.user import User
 from chora.service.artist_dto import ArtistDTO
@@ -29,7 +30,7 @@ artist_router: Final = APIRouter(tags=["Lesen"])
 def get_by_id(
     artist_id: int,
     request: Request,
-    service: Annotated[ArtistService, Depends(get_artist_service)],
+    service: Annotated[ArtistService, Depends(get_service)],
 ) -> Response:
     """Hole einen Künstler anhand seiner ID.
 
@@ -78,7 +79,7 @@ def get_by_id(
 )
 def get(
     request: Request,
-    service: Annotated[ArtistService, Depends(get_artist_service)],
+    service: Annotated[ArtistService, Depends(get_service)],
 ) -> JSONResponse:
     """Hole Künstler anhand von Query-Parametern.
 
@@ -121,7 +122,8 @@ def _artist_slice_to_page(
     :type artist_slice: ArtistSlice
     :param pageable: Das Pageable-Objekt mit den Informationen zur Pagination.
     :type pageable: Pageable
-    :return: Ein Dictionary mit den Daten der Seite, einschließlich der Künstler und der Metadaten.
+    :return: Ein Dictionary mit den Daten der Seite, einschließlich der Künstler
+        und der Metadaten.
     :rtype: dict[str, Any]
     """
     artist_dict: Final = tuple(
