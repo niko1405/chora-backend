@@ -1,6 +1,5 @@
 """Repository fuer die Chora-Objekte."""
-
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Final
 
 from loguru import logger
@@ -155,7 +154,7 @@ class ArtistRepository:
 
     def _count_rows_name(self, teil: str, session: Session) -> int:
         statement: Final = (
-            select(func.count())
+            select(func.count(Artist.id))
             .select_from(Artist)
             .where(Artist.name.ilike(f"%{teil}%"))
         )
@@ -222,3 +221,15 @@ class ArtistRepository:
         )
         result: Final = session.scalar(statement)
         return result is not None
+
+    def find_name(self, teil: str, session: Session) -> Sequence[str]:
+        """Artist-Objekte anhand eines Namens suchen."""
+        logger.debug("teil={}", teil)
+        statement: Final = (
+            select(Artist.name)
+            .filter(Artist.name.ilike(f"%{teil}%"))
+            .distinct()
+        )
+        artists: Final = (session.scalars(statement)).all()
+        logger.debug("artists={}", artists)
+        return artists
