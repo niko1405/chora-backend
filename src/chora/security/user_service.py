@@ -53,15 +53,15 @@ class UserService:
             )
             logger.debug("client_id={} für 'python-client'", self.client_uuid)
             roles = self.keycloak_admin.get_client_roles(client_id=self.client_uuid)
-            roles_patient = [role for role in roles if role["name"] == "patient"]
+            roles_user = [role for role in roles if role["name"] == "user"]
             # Rolle 'patient' in Keycloak fuer KeycloakAdmin.assign_client_role() und
             # ist ein dict mit Schluesseln "id", "name", "description", ...
-            self.rolle_patient = roles_patient[0]
-            logger.debug("rolle_patient={}", self.rolle_patient)
+            self.rolle_user = roles_user[0]
+            logger.debug("rolle_user={}", self.rolle_user)
         except KeycloakConnectionError:
             logger.error("Keine Verbindung zu Keycloak! Ist Keycloak gestartet?")
             self.client_uuid = "N/A"
-            self.rolle_patient = None
+            self.rolle_user = None
 
     def username_exists(self, username: str) -> bool:
         """Abfrage, ob ein Benutzername bereits existiert.
@@ -73,8 +73,6 @@ class UserService:
         """
         logger.debug("username={}", username)
 
-        # https://www.keycloak.org/docs-api/latest/rest-api/#_users:
-        # GET /admin/realms/{realm}/users
         user_id: Final = self.keycloak_admin.get_user_id(username)
         logger.debug("user_id={}", user_id)
         exists: Final = user_id is not None
@@ -91,8 +89,6 @@ class UserService:
         """
         logger.debug("email={}", email)
 
-        # https://www.keycloak.org/docs-api/latest/rest-api/#_users:
-        # GET /admin/realms/{realm}/users
         users: Final = self.keycloak_admin.get_users(query={"email": email})
         logger.debug("users={}", users)
         exists: Final = len(users) > 0
@@ -109,9 +105,6 @@ class UserService:
         """
         logger.debug("user={}", user)
 
-        # https://www.keycloak.org/docs-api/latest/rest-api/#_users:
-        # POST /admin/realms/{realm}/users
-        # https://www.keycloak.org/docs-api/latest/rest-api/index.html#UserRepresentation
         user_id: Final = self.keycloak_admin.create_user(
             payload={
                 "username": user.username,
@@ -126,21 +119,63 @@ class UserService:
         logger.debug("user_id={}", user_id)
 
         self.keycloak_admin.assign_client_role(
-            user_id=user_id, client_id=self.client_uuid, roles=[self.rolle_patient]
+            user_id=user_id, client_id=self.client_uuid, roles=[self.rolle_user]
         )
         return user_id
 
+    def delete_user(self, user_id: str) -> None:
+        """Einen User anhand der Keycloak-ID loeschen.
+
+        :param user_id: ID des Users in Keycloak
+        :raises KeycloakError: Falls mit Keycloak ein Fehler auftritt
+        """
+        logger.debug("user_id={}", user_id)
+        self.keycloak_admin.delete_user(user_id)
+
+    def update_user(
+        self,
+        username: str,
+        email: str,
+        vorname: str,
+        nachname: str,
+    ) -> None:
+        """Benutzerdaten eines existierenden Users in Keycloak aktualisieren.
+
+        :param username: Keycloak-Benutzername
+        :param email: Neue Email
+        :param vorname: Neuer Vorname (firstName)
+        :param nachname: Neuer Nachname (lastName)
+        :raises KeycloakError: Falls mit Keycloak ein Fehler auftritt
+        """
+        logger.debug(
+            "username={}, email={}, vorname={}, nachname={}",
+            username,
+            email,
+            vorname,
+            nachname,
+        )
+
+        user_id: Final = self.keycloak_admin.get_user_id(username)
+        if user_id is None:
+            logger.warning("User mit username={} not found in Keycloak", username)
+            return
+
+        self.keycloak_admin.update_user(
+            user_id=user_id,
+            payload={
+                "email": email,
+                "firstName": vorname,
+                "lastName": nachname,
+            },
+        )
+        logger.debug("User mit user_id={} erfolgreich aktualisiert", user_id)
+
     def remove_all_users(self) -> None:
         """Alle User außer 'admin' aus Keycloak entfernen."""
-        # https://www.keycloak.org/docs-api/latest/rest-api/#_users:
-        # GET /admin/realms/{realm}/users
-        # keycloak_admin.get_users(query={"username": "foo"})
         kc_users: Final = self.keycloak_admin.get_users()
         for kc_user in kc_users:
             if kc_user.get("username") == "admin":
                 continue
-            # https://www.keycloak.org/docs-api/latest/rest-api/#_users:
-            # DELETE /admin/realms/{realm}/users/{user-id}
             self.keycloak_admin.delete_user(kc_user.get("id"))
 
     def find_user_by_username(self, username: str) -> User | None:
