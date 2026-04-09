@@ -80,48 +80,6 @@ class ArtistRepository:
                 return artists
         return Slice(content=(), total_elements=0)
 
-    def create(self, artist: Artist, session: Session) -> Artist:
-        """Einen Artist anlegen."""
-        logger.debug("artist={}", artist)
-        session.add(artist)
-        session.flush()
-        return artist
-
-    def update(self, artist: Artist, session: Session) -> Artist | None:
-        """Einen Artist aktualisieren."""
-        return self.patch(artist=artist, session=session)
-
-    def patch(self, artist: Artist, session: Session) -> Artist | None:
-        """Einen Artist teilweise aktualisieren."""
-        logger.debug("artist={}", artist)
-        session.flush()
-        return artist
-
-    def delete_by_id(self, artist_id: int, session: Session) -> bool:
-        """Einen Artist anhand seiner ID löschen."""
-        logger.debug("artist_id={}", artist_id)
-        artist = self.find_by_id(artist_id=artist_id, session=session)
-        if artist is None:
-            return False
-        session.delete(artist)
-        session.flush()
-        return True
-
-    def exists_email_other_id(
-        self,
-        artist_id: int,
-        email: str,
-        session: Session,
-    ) -> bool:
-        """Pruefen, ob eine E-Mail bei einem anderen Artist bereits existiert."""
-        statement: Final = (
-            select(Artist.id)
-            .where(func.lower(Artist.email) == email.lower(), Artist.id != artist_id)
-            .limit(1)
-        )
-        result: Final = session.scalar(statement)
-        return result is not None
-
     def _find_all(self, pageable: Pageable, session: Session) -> Slice[Artist]:
         """Alle Artist-Objekte mit Pagination suchen."""
         logger.debug("aufgerufen")
@@ -196,5 +154,52 @@ class ArtistRepository:
         return artist_slice
 
     def _count_rows_name(self, teil: str, session: Session) -> int:
-        statement: Final = select(Artist.id).where(Artist.name.ilike(f"%{teil}%"))
-        return len(session.scalars(statement).all())
+        statement: Final = (
+            select(func.count())
+            .select_from(Artist)
+            .where(Artist.name.ilike(f"%{teil}%"))
+        )
+        count: Final = session.execute(statement).scalar()
+        return count if count is not None else 0
+
+    def create(self, artist: Artist, session: Session) -> Artist:
+        """Einen Artist anlegen."""
+        logger.debug("artist={}", artist)
+        session.add(artist)
+        session.flush()
+        return artist
+
+    def update(self, artist: Artist, session: Session) -> Artist | None:
+        """Einen Artist aktualisieren."""
+        return self.patch(artist=artist, session=session)
+
+    def patch(self, artist: Artist, session: Session) -> Artist | None:
+        """Einen Artist teilweise aktualisieren."""
+        logger.debug("artist={}", artist)
+        session.flush()
+        return artist
+
+    def delete_by_id(self, artist_id: int, session: Session) -> bool:
+        """Einen Artist anhand seiner ID löschen."""
+        logger.debug("artist_id={}", artist_id)
+        artist = self.find_by_id(artist_id=artist_id, session=session)
+        if artist is None:
+            return False
+        session.delete(artist)
+        session.flush()
+        return True
+
+    def exists_email_other_id(
+        self,
+        artist_id: int,
+        email: str,
+        session: Session,
+    ) -> bool:
+        """Pruefen, ob eine E-Mail bei einem anderen Artist bereits existiert."""
+        statement: Final = (
+            select(Artist.id)
+            .where(func.lower(Artist.email) == email.lower(), Artist.id != artist_id)
+            .limit(1)
+        )
+        result: Final = session.scalar(statement)
+        return result is not None
