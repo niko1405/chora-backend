@@ -1,7 +1,9 @@
 """Modul für die GraphQL-Schnittstelle."""
+
 from chora.graphql_api.graphql_types import (
     ArtistInput,
     CreatePayload,
+    SongInput,
     Suchparameter,
     VertragInput,
 )
@@ -12,6 +14,7 @@ __all__ = [
     "CreatePayload",
     "Mutation",
     "Query",
+    "SongInput",
     "Suchparameter",
     "VertragInput",
     "graphql_router",

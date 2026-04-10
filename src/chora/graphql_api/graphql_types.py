@@ -1,11 +1,8 @@
 """Schema für GraphQL."""
-from sqlalchemy.sql.functions import user
-from chora.entity import Song
-from psutil import v
 
 import strawberry
 
-__all__ = ["Suchparameter", "VertragInput"]
+__all__ = ["ArtistInput", "SongInput", "Suchparameter", "VertragInput"]
 
 
 @strawberry.input
@@ -76,4 +73,4 @@ class ArtistInput:
     """Liste der Songs des Künstlers."""
 
     username: str
-    """Benutzername des Künstlers."""    
+    """Benutzername des Künstlers."""
