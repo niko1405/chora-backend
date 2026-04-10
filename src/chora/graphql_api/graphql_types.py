@@ -74,3 +74,23 @@ class ArtistInput:
 
     username: str
     """Benutzername des Künstlers."""
+
+
+@strawberry.type
+class CreatePayload:
+    """Payload für die Erstellung eines Künstlers."""
+
+    id: int
+    """ID des erstellten Künstlers."""
+
+
+@strawberry.type
+class LoginResult:
+    """Resultat-Typ, wenn ein Login erfolgreich war."""
+
+    token: str
+    """Token des eingeloggten Users."""
+    expiresIn: str  # noqa: N815  # NOSONAR
+    """Gültigkeitsdauer des Tokens."""
+    roles: list[str]
+    """Rollen des eingeloggten Users."""
