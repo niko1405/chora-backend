@@ -92,3 +92,5 @@ class Query:
             return []
         logger.debug("{}", artists_dto)
         return artists_dto.content
+
+# TODO : Mutation implementieren, um Artistdaten zu erstellen, zu aktualisieren und zu löschen.
