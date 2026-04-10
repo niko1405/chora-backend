@@ -1,4 +1,6 @@
 """Schema für GraphQL."""
+from chora.entity import Song
+from psutil import v
 
 import strawberry
 
@@ -37,3 +39,26 @@ class VertragInput:
 
     end_date: str
     """Enddatum des Vertrags."""
+
+
+@strawberry.input
+class ArtistInput:
+    """Eingabe für Künstler."""
+
+    name: str
+    """Name des Künstlers."""
+
+    genre: str
+    """Genre des Künstlers."""
+
+    alter: int
+    """Alter des Künstlers."""
+
+    email: str
+    """E-Mail-Adresse des Künstlers."""
+
+    vertrag: VertragInput
+    """Vertrag des Künstlers."""
+
+    songs: list[SongInput]
+    """Liste der Songs des Künstlers."""
