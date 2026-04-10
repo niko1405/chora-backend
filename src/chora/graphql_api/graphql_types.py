@@ -1,4 +1,5 @@
 """Schema für GraphQL."""
+from sqlalchemy.sql.functions import user
 from chora.entity import Song
 from psutil import v
 
@@ -42,6 +43,17 @@ class VertragInput:
 
 
 @strawberry.input
+class SongInput:
+    """Eingabe für Song."""
+
+    title: str
+    """Titel des Songs."""
+
+    duration: int
+    """Dauer des Songs in Sekunden."""
+
+
+@strawberry.input
 class ArtistInput:
     """Eingabe für Künstler."""
 
@@ -62,3 +74,6 @@ class ArtistInput:
 
     songs: list[SongInput]
     """Liste der Songs des Künstlers."""
+
+    username: str
+    """Benutzername des Künstlers."""    
