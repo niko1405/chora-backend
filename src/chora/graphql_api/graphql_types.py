@@ -1,7 +1,8 @@
 """Schema für GraphQL."""
-import email_validator
-from chora.graphql_api import VertragInput
-from gevent.ares import __all__
+
+import strawberry
+
+__all__ = ["Suchparameter", "VertragInput"]
 
 
 @strawberry.input
@@ -21,3 +22,18 @@ class Suchparameter:
     """E-Mail-Adresse des Artisten."""
 
 
+@strawberry.input
+class VertragInput:
+    """Eingabe für Vertrag."""
+
+    artist_id: int
+    """ID des Artisten."""
+
+    agent_id: int
+    """ID des Agenten."""
+
+    start_date: str
+    """Startdatum des Vertrags."""
+
+    end_date: str
+    """Enddatum des Vertrags."""
