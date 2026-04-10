@@ -1,5 +1,4 @@
 """Schema für GraphQL durch Strawberry."""
-
 from collections.abc import Sequence
 from typing import Final
 
@@ -8,6 +7,7 @@ from fastapi import Request
 from loguru import logger
 from strawberry.types import Info
 
+from chora.graphql_api import Suchparameter
 from chora.repository.artist_repository import ArtistRepository, Pageable
 from chora.repository.song_repository import SongRepository
 from chora.security import Role, TokenService, UserService
@@ -85,10 +85,10 @@ class Query:
 
         pageable: Final = Pageable.create(size=str(0))
         try:
-            artist_dto: Final = _service.find(
-                suchparameter=suchparameter_filtered, pageable=pageable
+            artists_dto: Final = _service.find(
+                queryparams=suchparameter_filtered, pageable=pageable
             )
         except NotFoundError:
             return []
-        logger.debug("{}", artist_dto)
-        return artist_dto.content
+        logger.debug("{}", artists_dto)
+        return artists_dto.content
