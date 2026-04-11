@@ -1,17 +1,24 @@
 """Schema für GraphQL durch Strawberry."""
-from chora.router.artist_model import ArtistModel
-from sqlalchemy.dialects.postgresql import Any
+
 from collections.abc import Sequence
 from typing import Final
 
 import strawberry
 from fastapi import Request
 from loguru import logger
+from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
-from chora.graphql_api import Suchparameter, ArtistInput, CreatePayload
+from chora.config import graphql_ide
+from chora.graphql_api.graphql_types import (
+    ArtistInput,
+    CreatePayload,
+    LoginResult,
+    Suchparameter,
+)
 from chora.repository.artist_repository import ArtistRepository, Pageable
 from chora.repository.song_repository import SongRepository
+from chora.router.artist_model import ArtistModel
 from chora.security import Role, TokenService, UserService
 from chora.service import (
     ArtistDTO,
@@ -111,7 +118,7 @@ class Mutation:
         """
         logger.debug("artist_input={}", artist_input)
 
-        artist_dict: dict[str, Any] = artist_input.__dict__
+        artist_dict = artist_input.__dict__
         artist_dict["vertrag"] = artist_input.vertrag.__dict__
         artist_dict["songs"] = [song.__dict__ for song in artist_input.songs]
 
@@ -121,3 +128,37 @@ class Mutation:
         payload: Final = CreatePayload(id=artist_dto.id)
         logger.debug("payload={}", payload)
         return payload
+
+    @strawberry.mutation
+    def login(self, username: str, password: str) -> LoginResult:
+        """Einen Token zu Benutzername und Passwort ermitteln.
+
+        :param username: Benutzername
+        :param password: Passwort
+        :rtype: LoginResult
+        """
+        logger.debug("username={}, password={}", username, password)
+        token_mapping = _token_service.token(username=username, password=password)
+
+        token = token_mapping["access_token"]
+        user = _token_service.get_user_from_token(token)
+        # List Comprehension ab Python 2.0 (2000) https://peps.python.org/pep-0202
+        roles: Final = [role.value for role in user.roles]
+        return LoginResult(token=token, expiresIn="1d", roles=roles)
+
+
+schema: Final = strawberry.Schema(query=Query, mutation=Mutation)
+
+
+Context = dict[str, Request]
+
+
+# Dependency Injection: Request von FastAPI weiterreichen an den Kontext von Strawberry
+def get_context(request: Request) -> Context:
+    return {"request": request}
+
+
+# https://strawberry.rocks/docs/integrations/fastapi
+graphql_router: Final = GraphQLRouter[Context](
+    schema, context_getter=get_context, graphql_ide=graphql_ide
+)
