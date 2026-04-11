@@ -1,4 +1,6 @@
 """Schema für GraphQL durch Strawberry."""
+from chora.router.artist_model import ArtistModel
+from sqlalchemy.dialects.postgresql import Any
 from collections.abc import Sequence
 from typing import Final
 
@@ -7,7 +9,7 @@ from fastapi import Request
 from loguru import logger
 from strawberry.types import Info
 
-from chora.graphql_api import Suchparameter
+from chora.graphql_api import Suchparameter, ArtistInput, CreatePayload
 from chora.repository.artist_repository import ArtistRepository, Pageable
 from chora.repository.song_repository import SongRepository
 from chora.security import Role, TokenService, UserService
@@ -93,4 +95,29 @@ class Query:
         logger.debug("{}", artists_dto)
         return artists_dto.content
 
-# TODO : Mutation implementieren, um Artistdaten zu erstellen, zu aktualisieren und zu löschen.
+
+@strawberry.type
+class Mutation:
+    """GraphQL Mutation, um Artistdaten zu schreiben."""
+
+    @strawberry.mutation
+    def create(self, artist_input: ArtistInput) -> CreatePayload:
+        """Einen Artist erstellen.
+
+        :param artist_input: Input Daten für die Erstellung eines Artists
+        :return: Payload mit der ID des erstellten Artists
+        :rtype CreatePayload
+        raises UsernameExistsError: Wenn der Username bereits existiert
+        """
+        logger.debug("artist_input={}", artist_input)
+
+        artist_dict: dict[str, Any] = artist_input.__dict__
+        artist_dict["vertrag"] = artist_input.vertrag.__dict__
+        artist_dict["songs"] = [song.__dict__ for song in artist_input.songs]
+
+        artist_model: Final = ArtistModel.model_validate(artist_dict)
+
+        artist_dto: Final = _write_service.create(artist=artist_model.to_artist())
+        payload: Final = CreatePayload(id=artist_dto.id)
+        logger.debug("payload={}", payload)
+        return payload
