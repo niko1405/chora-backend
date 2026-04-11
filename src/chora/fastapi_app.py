@@ -2,7 +2,6 @@
 
 This module provides a simple REST API for songwriting workspace management.
 """
-
 from pathlib import Path
 from typing import Final
 
@@ -10,6 +9,15 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from loguru import logger
 
+from chora.config import (
+    dev_db_populate,
+    dev_keycloak_populate,
+)
+from chora.config.dev.db_populate_router import router as db_populate_router
+from chora.config.dev.keycloak_populate_router import (
+    router as keycloak_populate_router,
+)
+from chora.graphql_api import graphql_router
 from chora.router import (
     artist_write_router,
     auth_router,
@@ -41,7 +49,7 @@ if dev_keycloak_populate:
 # --------------------------------------------------------------------------------------
 # G r a p h Q L
 # --------------------------------------------------------------------------------------
-# app.include_router(graphql_router, prefix="/graphql")
+app.include_router(graphql_router, prefix="/graphql")
 
 
 # --------------------------------------------------------------------------------------
