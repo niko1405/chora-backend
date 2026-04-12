@@ -1,8 +1,8 @@
 # Chora
 
-Chora ist eine FastAPI-Anwendung zur Verwaltung von Artists, Songs und Vertraegen.
-Die Anwendung stellt REST- und GraphQL-Schnittstellen bereit, nutzt PostgreSQL fuer
-die Persistenz und Keycloak fuer die Authentifizierung. Zusaetzlich sind Health-,
+Chora ist eine FastAPI-Anwendung zur Verwaltung von Artists, Songs und Verträgen.
+Die Anwendung stellt REST- und GraphQL-Schnittstellen bereit, nutzt PostgreSQL für
+die Persistenz und Keycloak für die Authentifizierung. Zusätzlich sind Health-,
 Shutdown- und Dev-Endpunkte sowie Prometheus-Metriken integriert.
 
 ## Architektur
@@ -68,13 +68,13 @@ flowchart TB
 
 - `Artist` als zentrales Aggregat mit 1:1-Beziehung zu `Vertrag`
 - `Song` als 1:n-Beziehung zu `Artist`
-- REST fuer Lesen und Schreiben
-- GraphQL fuer flexible Abfragen
-- Authentifizierung und Autorisierung ueber Keycloak
-- Persistenz ueber SQLAlchemy und PostgreSQL
-- Metriken fuer Prometheus
+- REST für Lesen und Schreiben
+- GraphQL für flexible Abfragen
+- Authentifizierung und Autorisierung über Keycloak
+- Persistenz über SQLAlchemy und PostgreSQL
+- Metriken für Prometheus
 
-## API-Uebersicht
+## API-Übersicht
 
 Basis-URL lokal: `https://127.0.0.1:8000`
 
@@ -85,26 +85,26 @@ Basis-URL lokal: `https://127.0.0.1:8000`
 | GET | `/rest/artists/{artist_id}` | User im Request-Kontext | Liefert einen Artist mit ETag-Semantik | `200` JSON-Objekt + `ETag`, oder `304` bei passendem `If-None-Match` |
 | GET | `/rest/artists` | User im Request-Kontext | Suche per Query (`name`, `email`) + Pagination (`page`, `size`) | `200` Page-JSON mit `content` und Meta-Feldern |
 | POST | `/rest/artists` | offen (fachlich validiert) | Legt Artist inkl. Vertrag/Songs an | `201` ohne Body, `Location` zeigt auf neue Ressource |
-| PUT | `/rest/artists/{artist_id}` | `ADMIN` oder `USER` | Vollstaendiges Update mit Versionskontrolle | `204` ohne Body, neues `ETag`; Fehler z.B. `428`/`412` bei Headerproblemen |
+| PUT | `/rest/artists/{artist_id}` | `ADMIN` oder `USER` | Vollständiges Update mit Versionskontrolle | `204` ohne Body, neues `ETag`; Fehler z.B. `428`/`412` bei Headerproblemen |
 | PATCH | `/rest/artists/{artist_id}` | `ADMIN` oder `USER` | Partielles Update mit Versionskontrolle | `204` ohne Body, neues `ETag` |
-| DELETE | `/rest/artists/{artist_id}` | `ADMIN` | Loescht Artist inkl. abhaengiger Daten per FK-Cascade | `204` ohne Body |
+| DELETE | `/rest/artists/{artist_id}` | `ADMIN` | Löscht Artist inkl. abhängiger Daten per FK-Cascade | `204` ohne Body |
 | GET | `/rest/artists/{artist_id}/songs/{song_id}` | User im Request-Kontext | Liest genau einen Song eines Artists | `200` Song-JSON |
 | GET | `/rest/artists/{artist_id}/songs` | User im Request-Kontext | Song-Liste eines Artists mit Pagination | `200` Page-JSON mit Songs |
-| POST | `/rest/artists/{artist_id}/songs` | `ADMIN` oder `USER` | Legt Song fuer Artist an | `201` ohne Body, `Location` auf neuen Song |
+| POST | `/rest/artists/{artist_id}/songs` | `ADMIN` oder `USER` | Legt Song für Artist an | `201` ohne Body, `Location` auf neuen Song |
 | PUT | `/rest/artists/{artist_id}/songs/{song_id}` | `ADMIN` oder `USER` | Ersetzt Song-Daten | `204` ohne Body |
-| DELETE | `/rest/artists/{artist_id}/songs/{song_id}` | `ADMIN` oder `USER` | Loescht Song | `204` ohne Body |
+| DELETE | `/rest/artists/{artist_id}/songs/{song_id}` | `ADMIN` oder `USER` | Löscht Song | `204` ohne Body |
 | POST | `/auth/token` | keine Rollen notwendig | Login mit Username/Passwort, liefert JWT + Rollen | `200` JSON mit `token`, `expires_in`, `rollen` |
-| GET | `/health/liveness` | offen | Prozess-Liveness fuer Orchestrierung | `200` `{ "status": "up" }` |
+| GET | `/health/liveness` | offen | Prozess-Liveness für Orchestrierung | `200` `{ "status": "up" }` |
 | GET | `/health/readiness` | offen | DB-Readiness via `SELECT 1` | `200` `{ "db": "up" }` oder `{ "db": "down" }` |
 | POST | `/admin/shutdown` | `ADMIN` | Stoppt den Server-Prozess | `200` mit Hinweis-JSON |
-| POST | `/dev/db_populate` | `ADMIN` (nur Dev-Modus) | Laedt DB-Testdaten neu | `200` `{ "db_populate": "success" }` |
-| POST | `/dev/keycloak_populate` | `ADMIN` (nur Dev-Modus) | Laedt Keycloak-Testdaten neu | `200` `{ "keycloak_populate": "success" }` |
-| GET | `/metrics` | offen | Prometheus-Metriken | `200` Textformat fuer Scraping |
+| POST | `/dev/db_populate` | `ADMIN` (nur Dev-Modus) | Lädt DB-Testdaten neu | `200` `{ "db_populate": "success" }` |
+| POST | `/dev/keycloak_populate` | `ADMIN` (nur Dev-Modus) | Lädt Keycloak-Testdaten neu | `200` `{ "keycloak_populate": "success" }` |
+| GET | `/metrics` | offen | Prometheus-Metriken | `200` Textformat für Scraping |
 
 ### GraphQL-Endpunkt
 
 - Endpoint: `/graphql`
-- Zugriff: typischerweise `POST` fuer Queries/Mutations, `GET` fuer IDE je nach Konfiguration
+- Zugriff: typischerweise `POST` für Queries/Mutations, `GET` für IDE je nach Konfiguration
 
 Beispiele:
 
@@ -155,20 +155,20 @@ Antwortcharakteristik GraphQL:
 - Query `artist`: einzelnes Objekt oder `null` (z.B. nicht gefunden/nicht autorisiert)
 - Query `artists`: Liste, bei fehlender Berechtigung leer
 - Mutation `create`: Payload mit neuer ID
-- Mutation `login`: Token + Rollen fuer den Client
+- Mutation `login`: Token + Rollen für den Client
 
-### Fehlerbilder (uebergreifend)
+### Fehlerbilder (übergreifend)
 
-- `401 Unauthorized`: Login fehlgeschlagen oder Token ungueltig
+- `401 Unauthorized`: Login fehlgeschlagen oder Token ungültig
 - `403 Forbidden`: Rolle nicht ausreichend
 - `404 Not Found`: Ressource nicht vorhanden
-- `412 Precondition Failed`: Version/If-Match ungueltig
+- `412 Precondition Failed`: Version/If-Match ungültig
 - `422 Unprocessable Entity`: Validierung, z.B. doppelte Email/Username
 - `428 Precondition Required`: If-Match fehlt bei versionsgesicherten Updates
 
 ## Projektstruktur
 
-- `src/chora/entity`: SQLAlchemy-Entitaeten wie `Artist`, `Song` und `Vertrag`
+- `src/chora/entity`: SQLAlchemy-Entitäten wie `Artist`, `Song` und `Vertrag`
 - `src/chora/router`: REST-Router und Request-Modelle
 - `src/chora/graphql_api`: GraphQL-Schema und Resolver
 - `src/chora/service`: Fachlogik und DTOs
@@ -190,10 +190,10 @@ Alternativ geht auch:
 uv run python -m chora
 ```
 
-Standardmaessig lauscht der Server auf `127.0.0.1:8000`, sofern in der
+Standardmäßig lauscht der Server auf `127.0.0.1:8000`, sofern in der
 Konfiguration nichts anderes gesetzt ist.
 
-## Pruefen und Entwickeln
+## Prüfen und Entwickeln
 
 ```bash
 uv run pytest
@@ -205,21 +205,21 @@ uvx ty check src tests
 ## Hinweise zur Entwicklung
 
 - Die DB-Struktur liegt in `src/chora/config/resources/postgresql/create.sql`.
-- Das passende Zuruecksetzen der Tabellen passiert ueber `drop.sql`.
-- Im Dev-Modus koennen DB und Keycloak automatisch vorbefuellt werden.
-- OpenAPI ist unter `https://127.0.0.1:8000/docs` verfuegbar.
+- Das passende Zurücksetzen der Tabellen passiert über `drop.sql`.
+- Im Dev-Modus können DB und Keycloak automatisch vorbefüllt werden.
+- OpenAPI ist unter `https://127.0.0.1:8000/docs` verfügbar.
 
 ## Mermaid in VS Code und GitHub
 
 Kurz: Ja, das kann sich unterscheiden.
 
 - GitHub rendert Mermaid in `README.md` nativ.
-- VS Code zeigt Mermaid nur dann gerendert, wenn die Markdown-Vorschau Mermaid unterstuetzt.
+- VS Code zeigt Mermaid nur dann gerendert, wenn die Markdown-Vorschau Mermaid unterstützt.
 - In der reinen Textansicht siehst du immer nur den Mermaid-Codeblock.
 
 Wenn du in VS Code keine Renderung siehst:
 
-1. Markdown-Vorschau oeffnen (`Ctrl+Shift+V`).
+1. Markdown-Vorschau öffnen (`Ctrl+Shift+V`).
 2. Sicherstellen, dass Mermaid in der Vorschau aktiv ist (je nach VS-Code-Version/Setup).
 3. Optional eine Mermaid-Extension installieren, falls dein Setup es nicht nativ rendert.
 
