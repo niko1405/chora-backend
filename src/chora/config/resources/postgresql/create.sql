@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS song (
     titel       TEXT NOT NULL,
     erscheinungsdatum DATE NOT NULL CHECK (erscheinungsdatum <= current_date),
     dauer       INTEGER NOT NULL CHECK (dauer > 0),
-    genres      JSONB,
+    genres      JSON,
     artist_id   INTEGER NOT NULL REFERENCES artist ON DELETE CASCADE
 );
 

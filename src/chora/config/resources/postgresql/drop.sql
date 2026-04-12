@@ -15,19 +15,13 @@
 
 -- https://www.postgresql.org/docs/current/sql-dropindex.html
 DROP INDEX IF EXISTS
-    adresse_patient_id_idx,
-    adresse_plz_idx,
-    rechnung_patient_id_idx,
-    patient_nachname_idx;
+    artist_name_idx,
+    song_artist_id_idx,
+    song_titel_idx,
+    vertrag_artist_id_idx;
 
 -- https://www.postgresql.org/docs/current/sql-droptable.html
 DROP TABLE IF EXISTS
-    adresse,
-    rechnung,
-    patient;
-
--- https://www.postgresql.org/docs/current/sql-droptype.html
-DROP TYPE IF EXISTS
-    geschlecht,
-    familienstand,
-    facharzt;
+    vertrag,
+    song,
+    artist;
