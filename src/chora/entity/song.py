@@ -2,20 +2,23 @@
 
 from dataclasses import InitVar
 from datetime import date
+from typing import TYPE_CHECKING
 
 from loguru import logger
 from sqlalchemy import JSON, ForeignKey, Identity
 from sqlalchemy.orm import Mapped, mapped_column, reconstructor, relationship
 
-from chora.entity.artist import Artist
 from chora.entity.base import Base
 from chora.entity.genre import Genre
+
+if TYPE_CHECKING:
+    from chora.entity.artist import Artist
 
 
 class Song(Base):
     """Entity-Klasse für Songs."""
 
-    __tablename___ = "song"
+    __tablename__ = "song"
 
     id: Mapped[int | None] = mapped_column(
         Identity(start=1000),
@@ -38,7 +41,7 @@ class Song(Base):
     artist_id: Mapped[int] = mapped_column(ForeignKey(column="artist.id"))
     """Id des zugehörigen Artisten als Fremdschlüssel inder DB-Tabelle."""
 
-    artist: Mapped[Artist] = relationship(
+    artist: Mapped["Artist"] = relationship(
         back_populates="songs",
     )
     """Das zugehörige Artist-Objekt"""

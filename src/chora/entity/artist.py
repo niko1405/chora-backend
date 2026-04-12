@@ -1,14 +1,16 @@
 """Entity-Klasse für Artist."""
 
 from datetime import date, datetime
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 
 from sqlalchemy import Identity
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from chora.entity.base import Base
-from chora.entity.song import Song
-from chora.entity.vertrag import Vertrag
+
+if TYPE_CHECKING:
+    from chora.entity.song import Song
+    from chora.entity.vertrag import Vertrag
 
 
 class Artist(Base):
@@ -34,13 +36,13 @@ class Artist(Base):
     email: Mapped[str] = mapped_column(unique=True)
     """Die eindeutige Emailadresse."""
 
-    songs: Mapped[list[Song]] = relationship(
+    songs: Mapped[list["Song"]] = relationship(
         back_populates="artist",
         cascade="save-update, delete",
     )
     """Die in einer 1:N-Beziehung referenzierten Songs"""
 
-    vertrag: Mapped[Vertrag] = relationship(
+    vertrag: Mapped["Vertrag"] = relationship(
         back_populates="artist",
         cascade="save-update, delete",
     )
