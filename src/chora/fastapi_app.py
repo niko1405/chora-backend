@@ -2,23 +2,34 @@
 
 This module provides a simple REST API for songwriting workspace management.
 """
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from pathlib import Path
+from time import time
 from typing import Final
 
 from fastapi import FastAPI, Request, Response, status
+from fastapi.concurrency import asynccontextmanager
+from fastapi.middleware.gzip import (
+    GZipMiddleware,  # https://fastapi.tiangolo.com/advanced/middleware/#gzipmiddleware
+)
 from fastapi.responses import FileResponse
 from loguru import logger
+from prometheus_fastapi_instrumentator import Instrumentator
 
+from chora.banner import banner
 from chora.config import (
     dev_db_populate,
     dev_keycloak_populate,
 )
+from chora.config.dev.db_populate import db_populate
 from chora.config.dev.db_populate_router import router as db_populate_router
+from chora.config.dev.keycloak_populate import keycloak_populate
 from chora.config.dev.keycloak_populate_router import (
     router as keycloak_populate_router,
 )
 from chora.graphql_api import graphql_router
 from chora.problem_details import create_problem_details
+from chora.repository.session_factory import engine
 from chora.router import (
     artist_write_router,
     auth_router,
@@ -36,8 +47,65 @@ from chora.service.exceptions import (
     VersionOutdatedError,
 )
 
+
+# --------------------------------------------------------------------------------------
+# S t a r t u p   u n d   S h u t d o w n
+# --------------------------------------------------------------------------------------
+# https://fastapi.tiangolo.com/advanced/events
+# pylint: disable=redefined-outer-name
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:  # noqa: RUF029
+    """DB und Keycloak neu laden, falls im dev-Modus, sowie Banner in der Konsole."""
+    if dev_db_populate:
+        db_populate()
+    if dev_keycloak_populate:
+        keycloak_populate()
+    banner(app.routes)
+    yield
+    logger.info("Der Server wird heruntergefahren")
+    logger.info("Connection-Pool fuer die DB wird getrennt.")
+    engine.dispose()
+
+
 # Instanz der App erstellen
-app = FastAPI(title="Songs API", description="Songwriting Workspace", version="1.0.0")
+app: Final = FastAPI(title="Songs API", description="Songwriting Workspace",
+                     version="1.0.0", lifespan=lifespan)
+
+# FastAPI-App fuer Metriken fuer Prometheus instrumentieren: Endpunkt /metrics
+Instrumentator().instrument(app).expose(app)
+
+# GZip-Middleware für die Komprimierung von Antworten hinzufügen, wenn die Antwortgröße
+# mindestens 500 Bytes beträgt
+app.add_middleware(GZipMiddleware, minimum_size=500)  # ty:ignore[invalid-argument-type]
+
+
+# Middleware zum Protokollieren der Anforderungsmethode und URL hinzufügen
+@app.middleware("http")
+async def log_request_header(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    """Middleware-Funktion, die die Anforderungsmethode und URL protokolliert."""
+    logger.debug(f"{request.method} '{request.url}'")
+    return await call_next(request)
+
+
+# Middleware zum Protokollieren der Antwortzeit und des Statuscodes hinzufügen
+@app.middleware("http")
+async def log_response_time(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    """log_response_time ist eine Middleware-Funktion, die die Antwortzeit und.
+
+    den Statuscode protokolliert.
+    """
+    start = time()
+    response = await call_next(request)
+    duration_ms = (time() - start) * 1000
+    logger.debug(
+        f"Response time: {duration_ms:.2f} ms, statuscode: {response.status_code}"
+    )
+    return response
+
 
 # --------------------------------------------------------------------------------------
 # R E S T
@@ -140,7 +208,7 @@ def login_error_handler(_request: Request, err: LoginError) -> Response:
 def email_exists_error_handler(_request: Request, err: EmailExistsError) -> Response:
     """Exception-Handling für EmailExistsError.
 
-    :param err: Exception, falls die Emailadresse des neuen oder zu ändernden Patienten
+    :param err: Exception, falls die Emailadresse des neuen oder zu ändernden Artists
         bereits existiert
     :return: Response mit Statuscode 422
     :rtype: Response
@@ -158,7 +226,7 @@ def username_exists_error_handler(
 ) -> Response:
     """Exception-Handling für UsernameExistsError.
 
-    :param err: Exception, falls der Username für den neuen Patienten bereits existiert
+    :param err: Exception, falls der Username für den neuen Artist bereits existiert
     :return: Response mit Statuscode 422
     :rtype: Response
     """
