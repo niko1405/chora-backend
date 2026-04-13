@@ -16,11 +16,13 @@
 
 """Tests für DELETE."""
 
+from http import HTTPStatus
 from typing import Final
 
-from tests.integration.common_test import create_artist_payload, ctx, rest_url
 from httpx import delete, post
 from pytest import mark
+
+from tests.integration.common_test import create_artist_payload, ctx, rest_url
 
 
 @mark.rest
@@ -29,7 +31,7 @@ def test_delete() -> None:
     # arrange
     artist = create_artist_payload(marker="delete")
     create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == 201
+    assert create_response.status_code == HTTPStatus.CREATED
     location = create_response.headers.get("Location")
     assert location is not None
     artist_id: Final = int(location.rsplit("/", maxsplit=1)[-1])
@@ -41,7 +43,7 @@ def test_delete() -> None:
     )
 
     # assert
-    assert response.status_code == 204  # noqa: PLR2004
+    assert response.status_code == HTTPStatus.NO_CONTENT
 
 
 @mark.rest
@@ -57,4 +59,4 @@ def test_delete_not_found() -> None:
     )
 
     # assert
-    assert response.status_code == 204  # noqa: PLR2004
+    assert response.status_code == HTTPStatus.NO_CONTENT
