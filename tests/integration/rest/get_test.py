@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101, D103, I001
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,21 +18,20 @@
 
 from http import HTTPStatus
 from typing import Final
-
-from tests.integration.common_test import create_artist_payload, ctx, rest_url
-from httpx import get, post
+from httpx import get
 from pytest import mark
+from tests.integration.common_test import ctx, rest_url
+
+
+EMAIL_ADMIN: Final = "admin@acme.com"
+EMAIL_ALICE: Final = "alice.neon@acme.de"
 
 
 @mark.rest
 @mark.get_request
-@mark.parametrize("marker", ["mailone", "mailtwo"])
-def test_get_by_email(marker: str) -> None:
-    # arrange
-    artist = create_artist_payload(marker=marker)
-    create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == HTTPStatus.CREATED
-    params = {"email": artist["email"]}
+@mark.parametrize("email", [EMAIL_ADMIN, EMAIL_ALICE])
+def test_get_by_email(email: str) -> None:
+    params = {"email": email}
 
     # act
     response: Final = get(rest_url, params=params, verify=ctx)
@@ -45,7 +44,7 @@ def test_get_by_email(marker: str) -> None:
     assert len(content) == 1
     artist_response = content[0]
     assert artist_response is not None
-    assert artist_response.get("email") == artist["email"]
+    assert artist_response.get("email") == email
     assert artist_response.get("id") is not None
 
 
@@ -64,14 +63,9 @@ def test_get_by_email_not_found(email: str) -> None:
 
 @mark.rest
 @mark.get_request
-@mark.parametrize("name", ["Alpha Artist", "Beta Artist"])
+@mark.parametrize("name", ["Admin", "Alice", "Bruno"])
 def test_get_by_name(name: str) -> None:
-    # arrange
-    artist = create_artist_payload()
-    artist["name"] = name
-    create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == HTTPStatus.CREATED
-    params = {"name": name.split()[0]}
+    params = {"name": name}
 
     # act
     response: Final = get(rest_url, params=params, verify=ctx)
@@ -91,7 +85,7 @@ def test_get_by_name(name: str) -> None:
 
 @mark.rest
 @mark.get_request
-@mark.parametrize("name", ["NotFound", "XYZ"],)
+@mark.parametrize("name", ["NotFound", "XYZ"])
 def test_get_by_name_not_found(name: str) -> None:
     params = {"name": name}
     response: Final = get(rest_url, params=params, verify=ctx)

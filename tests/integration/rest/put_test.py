@@ -19,9 +19,10 @@
 from http import HTTPStatus
 from typing import Final
 
-from tests.integration.common_test import create_artist_payload, ctx, rest_url
 from httpx import post, put
 from pytest import mark
+
+from tests.integration.common_test import create_artist_payload, ctx, login, rest_url
 
 EMAIL_UPDATE: Final = "artist.update@acme.de"
 
@@ -43,7 +44,8 @@ def test_put() -> None:
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-09",
     }
-    headers = {"If-Match": if_match}
+    token: Final = login()
+    headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}
 
     # act
     response: Final = put(
@@ -74,7 +76,8 @@ def test_put_invalid() -> None:
         "email": "falsche_email_put@",
         "geburtsdatum": "2035-02-04",
     }
-    headers = {"If-Match": '"0"'}
+    token: Final = login()
+    headers = {"If-Match": '"0"', "Authorization": f"Bearer {token}"}
 
     # act
     response: Final = put(
@@ -102,7 +105,8 @@ def test_put_nicht_vorhanden() -> None:
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-03",
     }
-    headers = {"If-Match": if_match}
+    token: Final = login()
+    headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}
 
     # act
     response: Final = put(
@@ -135,7 +139,8 @@ def test_put_email_exists() -> None:
         "email": artist_a["email"],
         "geburtsdatum": "1990-01-09",
     }
-    headers = {"If-Match": '"0"'}
+    token: Final = login()
+    headers = {"If-Match": '"0"', "Authorization": f"Bearer {token}"}
 
     # act
     response: Final = put(
@@ -195,7 +200,8 @@ def test_put_alte_versionsnr() -> None:
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-03",
     }
-    headers = {"If-Match": if_match}
+    token: Final = login()
+    headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}
 
     # act
     response: Final = put(
@@ -226,7 +232,8 @@ def test_put_ungueltige_versionsnr() -> None:
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-03",
     }
-    headers = {"If-Match": if_match}
+    token: Final = login()
+    headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}
 
     # act
     response: Final = put(
@@ -258,7 +265,8 @@ def test_put_versionsnr_ohne_quotes() -> None:
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-03",
     }
-    headers = {"If-Match": if_match}
+    token: Final = login()
+    headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}
 
     # act
     response: Final = put(

@@ -22,7 +22,7 @@ from typing import Final
 from httpx import delete, post
 from pytest import mark
 
-from tests.integration.common_test import create_artist_payload, ctx, rest_url
+from tests.integration.common_test import create_artist_payload, ctx, login, rest_url
 
 
 @mark.rest
@@ -37,8 +37,10 @@ def test_delete() -> None:
     artist_id: Final = int(location.rsplit("/", maxsplit=1)[-1])
 
     # act
+    token: Final = login()
     response: Final = delete(
         f"{rest_url}/{artist_id}",
+        headers={"Authorization": f"Bearer {token}"},
         verify=ctx,
     )
 
@@ -53,8 +55,10 @@ def test_delete_not_found() -> None:
     artist_id: Final = 999999
 
     # act
+    token: Final = login()
     response: Final = delete(
         f"{rest_url}/{artist_id}",
+        headers={"Authorization": f"Bearer {token}"},
         verify=ctx,
     )
 

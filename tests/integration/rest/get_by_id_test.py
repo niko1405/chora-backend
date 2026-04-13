@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101, D103, I001
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,29 +18,23 @@
 
 from http import HTTPStatus
 from typing import Final
-
-from tests.integration.common_test import create_artist_payload, ctx, rest_url
-from httpx import get, post
+from httpx import get
 from pytest import mark
+from tests.integration.common_test import ctx, rest_url
+
+
+ARTIST_ID_ADMIN: Final = 1000
+ARTIST_ID_ALICE: Final = 1010
+SONG_ID_ADMIN: Final = 3000
+SONG_ID_ALICE_FIRST: Final = 3010
 
 
 @mark.rest
 @mark.get_request
-def test_get_song_by_id() -> None:
-    # arrange
-    artist = create_artist_payload(marker="songbyid")
-    create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == HTTPStatus.CREATED
-
-    list_response: Final = get(rest_url, params={"email": artist["email"]}, verify=ctx)
-    assert list_response.status_code == HTTPStatus.OK
-    artist_response: Final = list_response.json()["content"][0]
-    artist_id: Final = artist_response["id"]
-    song_id: Final = artist_response["songs"][0]["id"]
-
+def test_get_artist_by_id() -> None:
     # act
     response: Final = get(
-        f"{rest_url}/{artist_id}/songs/{song_id}",
+        f"{rest_url}/{ARTIST_ID_ADMIN}",
         verify=ctx,
     )
 
@@ -48,8 +42,61 @@ def test_get_song_by_id() -> None:
     assert response.status_code == HTTPStatus.OK
     response_body: Final = response.json()
     assert isinstance(response_body, dict)
-    assert response_body.get("id") == song_id
-    assert response_body.get("artist_id") == artist_id
+    assert response_body.get("id") == ARTIST_ID_ADMIN
+
+
+@mark.rest
+@mark.get_request
+def test_get_artist_by_id_not_found() -> None:
+    response: Final = get(
+        f"{rest_url}/999999",
+        verify=ctx,
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@mark.rest
+@mark.get_request
+def test_get_song_by_id() -> None:
+    # act
+    response: Final = get(
+        f"{rest_url}/{ARTIST_ID_ADMIN}/songs/{SONG_ID_ADMIN}",
+        verify=ctx,
+    )
+
+    # assert
+    assert response.status_code == HTTPStatus.OK
+    response_body: Final = response.json()
+    assert isinstance(response_body, dict)
+    assert response_body.get("id") == SONG_ID_ADMIN
+    assert response_body.get("artist_id") == ARTIST_ID_ADMIN
+
+
+@mark.rest
+@mark.get_request
+def test_get_songs_by_artist_id() -> None:
+    response: Final = get(
+        f"{rest_url}/{ARTIST_ID_ALICE}/songs",
+        verify=ctx,
+    )
+    assert response.status_code == HTTPStatus.OK
+    response_body: Final = response.json()
+    assert isinstance(response_body, dict)
+    content = response_body.get("content")
+    assert isinstance(content, list)
+    assert len(content) >= 1
+    song_ids = {song.get("id") for song in content}
+    assert SONG_ID_ALICE_FIRST in song_ids
+
+
+@mark.rest
+@mark.get_request
+def test_get_songs_by_artist_id_not_found() -> None:
+    response: Final = get(
+        f"{rest_url}/999999/songs",
+        verify=ctx,
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
 
 
 @mark.rest
