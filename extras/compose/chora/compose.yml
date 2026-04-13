@@ -41,7 +41,7 @@ include:
 # https://docs.docker.com/reference/compose-file/services
 services:
   patient:
-    image: juergenzimmermann/patient:2026.4.1-hardened
+    image: juergenzimmermann/chora:2026.4.1-hardened
     #image: juergenzimmermann/patient:2026.4.1-trixie
     #image: juergenzimmermann/patient:2026.4.1-alpine
     #entrypoint: ["/bin/bash", "-c", "echo 'Container als bash gestartet.' && sleep infinity"]
@@ -62,18 +62,18 @@ services:
     volumes:
       - type: bind
         source: app.toml
-        target: /opt/app/.venv/lib/python3.14/site-packages/patient/config/resources/app.toml
+        target: /opt/app/.venv/lib/python3.14/site-packages/chora/config/resources/app.toml
         read_only: true
       - type: bind
         source: ../../../log
         target: /opt/app/log
       - type: bind
-        source: patient.csv
-        target: /csv/patient.csv
+        source: artist.csv
+        target: /csv/artist.csv
         read_only: true
       - type: bind
-        source: ../../../src/patient/config/resources/tls/key.pem
-        target: /opt/app/.venv/lib/python3.14/site-packages/patient/config/resources/tls/key.pem
+        source: ../../../src/chora/config/resources/tls/key.pem
+        target: /opt/app/.venv/lib/python3.14/site-packages/chora/config/resources/tls/key.pem
         read_only: true
     env_file: .env
     networks: [acme-network]
