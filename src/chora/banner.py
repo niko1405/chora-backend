@@ -76,7 +76,7 @@ def banner(routes: list[BaseRoute]) -> None:
     """Banner für den Start des Servers."""
     figlet: Final = Figlet()
     print()
-    print(figlet.renderText("patient"))
+    print(figlet.renderText("chora"))
 
     rechnername: Final = gethostname()
     # Default Isolation Level "read committed": Schreibsperren und keine Lesesperren
