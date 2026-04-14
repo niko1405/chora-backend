@@ -17,15 +17,15 @@
 
 -- https://www.postgresql.org/docs/current/sql-createuser.html
 -- https://www.postgresql.org/docs/current/sql-createrole.html
-CREATE USER patient PASSWORD 'p';
+CREATE USER chora PASSWORD 'p';
 
 -- https://www.postgresql.org/docs/current/sql-createdatabase.html
-CREATE DATABASE patient;
+CREATE DATABASE cora;
 
 -- https://www.postgresql.org/docs/current/role-attributes.html
 -- https://www.postgresql.org/docs/current/ddl-priv.html
 -- https://www.postgresql.org/docs/current/sql-grant.html
-GRANT ALL ON DATABASE patient TO patient;
+GRANT ALL ON DATABASE chora TO chora;
 
 -- https://www.postgresql.org/docs/current/sql-createtablespace.html
-CREATE TABLESPACE patientspace OWNER patient LOCATION '/tablespace/patient';
+CREATE TABLESPACE choraspace OWNER chora LOCATION '/tablespace/chora';

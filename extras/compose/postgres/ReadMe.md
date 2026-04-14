@@ -141,8 +141,8 @@ Schema `patient` mit dem DB-User `patient` als _Owner_ angelegt:
 
 ```shell
     docker compose exec db bash
-        psql --dbname=postgres --username=postgres --file=/init/patient/sql/create-db.sql
-        psql --dbname=patient --username=patient --file=/init/patient/sql/create-schema.sql
+        psql --dbname=postgres --username=postgres --file=/init/chora/sql/create-db.sql
+        psql --dbname=chora --username=chora --file=/init/chora/sql/create-schema.sql
         exit
     docker compose down
 ```
