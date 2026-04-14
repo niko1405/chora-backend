@@ -20,7 +20,7 @@
 CREATE USER chora PASSWORD 'p';
 
 -- https://www.postgresql.org/docs/current/sql-createdatabase.html
-CREATE DATABASE cora;
+CREATE DATABASE chora;
 
 -- https://www.postgresql.org/docs/current/role-attributes.html
 -- https://www.postgresql.org/docs/current/ddl-priv.html
