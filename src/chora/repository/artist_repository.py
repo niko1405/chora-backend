@@ -165,7 +165,7 @@ class ArtistRepository:
         """Pruefen, ob eine E-Mail bereits existiert.
 
         :param email: Emailadresse
-        :param patient_id: eigene Patient-ID
+        :param artist_id: eigene Artist-ID
         :param session: Session für SQLAlchemy
         :return: True, falls es die Emailadresse bereits gibt, False sonst
         :rtype: bool

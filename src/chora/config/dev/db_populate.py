@@ -114,10 +114,10 @@ class DbPopulateService:
     def _load_csv_files(self) -> None:
         logger.debug("begin")
         tabellen: Final = ["artist", "vertrag", "song"]
-        csv_path: Final = "/init/artist/csv"
+        csv_path: Final = "/init/chora/csv"
         # siehe extras/compose/postgres/compose.init.yml
         with self.engine_admin.connect() as connection:
-            connection.execute(text("SET search_path TO artist;"))
+            connection.execute(text("SET search_path TO chora;"))
             for tabelle in tabellen:
                 self._load_csv_file(
                     tabelle=tabelle,

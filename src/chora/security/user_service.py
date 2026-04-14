@@ -54,7 +54,7 @@ class UserService:
             logger.debug("client_id={} für 'python-client'", self.client_uuid)
             roles = self.keycloak_admin.get_client_roles(client_id=self.client_uuid)
             roles_user = [role for role in roles if role["name"] == "user"]
-            # Rolle 'patient' in Keycloak fuer KeycloakAdmin.assign_client_role() und
+            # Rolle 'user' in Keycloak fuer KeycloakAdmin.assign_client_role() und
             # ist ein dict mit Schluesseln "id", "name", "description", ...
             self.rolle_user = roles_user[0]
             logger.debug("rolle_user={}", self.rolle_user)

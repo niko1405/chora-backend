@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # Aufruf:   docker compose up
-#           docker compose exec patient bash   # "ash" bei Alpine
+#           docker compose exec chora bash   # "ash" bei Alpine
 #             id
 #             env
 #             pwd
@@ -40,10 +40,10 @@ include:
 
 # https://docs.docker.com/reference/compose-file/services
 services:
-  patient:
+  chora:
     image: juergenzimmermann/chora:2026.4.1-hardened
-    #image: juergenzimmermann/patient:2026.4.1-trixie
-    #image: juergenzimmermann/patient:2026.4.1-alpine
+    #image: juergenzimmermann/chora:2026.4.1-trixie
+    #image: juergenzimmermann/chora:2026.4.1-alpine
     #entrypoint: ["/bin/bash", "-c", "echo 'Container als bash gestartet.' && sleep infinity"]
     # (d)ash = (Debian) Almquist Shell
     #entrypoint: ["/bin/ash", "-c", "echo 'Container als ash gestartet.' && sleep infinity"]
@@ -77,7 +77,7 @@ services:
         read_only: true
     env_file: .env
     networks: [acme-network]
-    hostname: patient
+    hostname: chora
     # https://docs.docker.com/reference/compose-file/services/#cap_drop
     cap_drop: [ALL]
     deploy:

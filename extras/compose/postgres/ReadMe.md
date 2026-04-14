@@ -91,7 +91,7 @@ der Owner und die Gruppe auf `postgres` gesetzt sowie die Zugriffsrechte auf Okt
 
 ```shell
     cp -r /tmp/init/* /init
-    mkdir /tablespace/patient
+    mkdir /tablespace/chora
     chown -R postgres:postgres /init /tablespace
     chmod 400 /init/*/sql/* /init/tls/*
     ls -lR /init

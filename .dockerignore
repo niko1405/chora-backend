@@ -6,12 +6,12 @@
 build
 docs
 extras
-patient.egg-info
+chora.egg-info
 htmlcov
 log
 site
-src/patient/**/__pycache__
-src/patient/config/resources/tls/key.pem
+src/chora/**/__pycache__
+src/chora/config/resources/tls/key.pem
 tests
 .coverage
 .editorconfig
@@ -22,6 +22,5 @@ Dockerfile
 Dockerfile.alpine
 mkdocs.yml
 openapi.json
-patienten-*.xlsx
 report.html
 sonar-*
