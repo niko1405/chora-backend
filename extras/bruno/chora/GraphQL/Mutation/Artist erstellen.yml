@@ -1,0 +1,50 @@
+info:
+  name: Artist erstellen
+  type: graphql
+  seq: 1
+
+graphql:
+  method: POST
+  url: "{{graphqlUrl}}"
+  body:
+    query: |-
+      mutation CreateArtist($artistInput: ArtistInput!) {
+        create(artistInput: $artistInput) {
+          id
+        }
+      }
+    variables: |-
+      {
+        "artistInput": {
+          "name": "Graphql Artist",
+          "genre": "Rock",
+          "alter": 27,
+          "email": "graphql.artist@example.com",
+          "vertrag": {
+            "artistId": 1,
+            "agentId": 1,
+            "startDate": "2026-01-01",
+            "endDate": "2027-12-31"
+          },
+          "songs": [
+            {
+              "title": "Graphql Song",
+              "duration": 222
+            }
+          ],
+          "username": "graphqlartist"
+        }
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

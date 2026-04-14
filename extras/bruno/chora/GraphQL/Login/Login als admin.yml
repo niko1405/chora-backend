@@ -1,0 +1,38 @@
+info:
+  name: Login als admin
+  type: graphql
+  seq: 1
+
+graphql:
+  method: POST
+  url: "{{graphqlUrl}}"
+  body:
+    query: |-
+      mutation Login($username: String!, $password: String!) {
+        login(username: $username, password: $password) {
+          token
+          expiresIn
+          roles
+        }
+      }
+    variables: |-
+      {
+        "username": "admin",
+        "password": "p"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.data.login.token
+      operator: matches
+      value: .\..+\..+
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

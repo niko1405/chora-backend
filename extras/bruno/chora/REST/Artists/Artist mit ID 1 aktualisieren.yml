@@ -1,0 +1,50 @@
+info:
+  name: Artist mit ID 1 aktualisieren
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{restArtistsUrl}}/:artistId"
+  headers:
+    - name: If-Match
+      value: '"1"'
+  params:
+    - name: artistId
+      value: "999999"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Artist Updated",
+        "geburtsdatum": "1991-01-01",
+        "email": "artist.updated@example.com",
+        "vertrag": {
+          "startdatum": "2026-01-01",
+          "enddatum": "2028-12-31",
+          "dauer": 36,
+          "firma": "Sony",
+          "gehalt": 180000.0
+        },
+        "songs": [
+          {
+            "titel": "Updated Song",
+            "genres": ["Pop"],
+            "erscheinungsdatum": "2026-04-01",
+            "dauer": 200
+          }
+        ]
+      }
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "404"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,46 @@
+info:
+  name: Artist anlegen
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{restArtistsUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Bruno Artist",
+        "geburtsdatum": "1990-01-01",
+        "email": "bruno.artist@example.com",
+        "vertrag": {
+          "startdatum": "2026-01-01",
+          "enddatum": "2027-12-31",
+          "dauer": 24,
+          "firma": "Universal",
+          "gehalt": 120000.0
+        },
+        "songs": [
+          {
+            "titel": "Bruno Song",
+            "genres": ["Rock"],
+            "erscheinungsdatum": "2026-03-01",
+            "dauer": 210
+          }
+        ]
+      }
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.headers.location
+      operator: matches
+      value: \/rest\/artists\/[1-9]\d*$
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

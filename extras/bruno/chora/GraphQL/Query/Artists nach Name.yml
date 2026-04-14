@@ -1,0 +1,36 @@
+info:
+  name: Artists nach Name
+  type: graphql
+  seq: 2
+
+graphql:
+  method: POST
+  url: "{{graphqlUrl}}"
+  body:
+    query: |-
+      query ArtistsByName($name: String) {
+        artists(suchparameter: { name: $name }) {
+          id
+          name
+          email
+        }
+      }
+    variables: |-
+      {
+        "name": "A"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.data.artists
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,30 @@
+info:
+  name: Artist mit ID 1
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{restArtistsUrl}}/:artistId"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: artistId
+      value: "1"
+      type: path
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.id
+      operator: eq
+      value: "1"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,10 @@
+info:
+  name: Misc
+  type: folder
+  seq: 7
+
+request:
+  auth: inherit
+  variables:
+    - name: faviconUrl
+      value: "{{baseUrl}}/favicon.ico"

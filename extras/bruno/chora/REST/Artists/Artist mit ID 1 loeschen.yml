@@ -1,0 +1,24 @@
+info:
+  name: Artist mit ID 1 loeschen
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: "{{restArtistsUrl}}/:artistId"
+  params:
+    - name: artistId
+      value: "999999"
+      type: path
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "404"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

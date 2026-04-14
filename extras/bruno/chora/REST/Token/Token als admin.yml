@@ -1,0 +1,35 @@
+info:
+  name: Token als admin
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{tokenUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "username": "admin",
+        "password": "p"
+      }
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.headers['content-type']
+      operator: eq
+      value: application/json
+    - expression: res.body.token
+      operator: matches
+      value: .\..+\..+
+    - expression: res.body.rollen
+      operator: isArray
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

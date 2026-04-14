@@ -1,0 +1,34 @@
+info:
+  name: Artist mit ID 1
+  type: graphql
+  seq: 1
+
+graphql:
+  method: POST
+  url: "{{graphqlUrl}}"
+  body:
+    query: |-
+      query ArtistById($artistId: ID!) {
+        artist(artistId: $artistId) {
+          id
+          name
+          email
+        }
+      }
+    variables: |-
+      {
+        "artistId": "1"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
