@@ -1,7 +1,7 @@
 info:
   name: Song für Artist anlegen NOTEXIST
   type: http
-  seq: 5
+  seq: 6
 
 http:
   method: POST

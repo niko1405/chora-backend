@@ -1,7 +1,7 @@
 info:
   name: Song 3010 aktualisieren
   type: http
-  seq: 6
+  seq: 7
 
 http:
   method: PUT
