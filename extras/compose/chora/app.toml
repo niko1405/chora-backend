@@ -22,25 +22,25 @@
 
 [server]
 host-binding = "0.0.0.0"
-# port = 8000
+port = 8000
 
 [tls]
-# private-key = "private-key.pem"
-# cert = "cert.pem"
+private-key = "private-key.pem"
+cert = "cert.pem"
 
 [db]
-# dialect = "postgresql"
-# username = "chora"
-# name = "chora"
+dialect = "postgresql"
+username = "chora"
+name = "chora"
 password = "p"
 password-admin = "p"
-# host = "postgres"
+host = "postgres"
 # Locust: auskommentieren
 log-statements = true
 
 [mail]
 # enabled = false
-# host = "mail"
+host = "mail"
 port = 1025
 # timeout = 1.0
 
@@ -48,13 +48,13 @@ port = 1025
 enabled = true
 
 [keycloak]
-# schema = "https"
-# host = "keycloak"
-# port = 8443
-# realm = "python"
-# client-id = "python-client"
+schema = "https"
+host = "keycloak"
+port = 8443
+realm = "python"
+client-id = "python-client"
 client-secret = "9CiJel4901BccISwuQFKoHEvPW5MyAeg"
-# admin = "admin"
+admin = "admin"
 admin-password = "p"
 csv = "/csv/artist.csv"
 
