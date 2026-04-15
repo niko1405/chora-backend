@@ -155,7 +155,7 @@ def create_artist_payload(*, marker: str | None = None) -> dict[str, Any]:
         "name": f"Artist{suffix}",
         "email": f"artist.{suffix}@acme.de",
         "geburtsdatum": "1995-01-01",
-        "username": f"artist_{suffix}",
+        "username": f"artist-{suffix}",
         "vertrag": {
             "startdatum": "2020-01-01",
             "enddatum": "2030-01-01",

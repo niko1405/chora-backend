@@ -63,14 +63,7 @@ def test_post_invalid() -> None:
             "firma": "",
             "gehalt": -1,
         },
-        "songs": [
-            {
-                "titel": "Titel123",
-                "genres": ["ROCK"],
-                "erscheinungsdatum": "2030-01-01",
-                "dauer": 0,
-            }
-        ],
+        "songs": [],
         "username": "testrestinvalid",
     }
     headers = {"Content-Type": "application/json"}

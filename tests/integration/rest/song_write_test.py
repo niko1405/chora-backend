@@ -33,7 +33,7 @@ def test_post_song() -> None:
     headers = {"Authorization": f"Bearer {token}"}
     song_payload = {
         "titel": "Signal Flow",
-        "genres": ["ROCK", "POP"],
+        "genres": ["Rock", "Pop"],
         "erscheinungsdatum": "2024-06-01",
         "dauer": 210,
         "artist_ids": [artist_id],
@@ -71,7 +71,7 @@ def test_put_song() -> None:
         song_rest_url,
         json={
             "titel": "Old Song",
-            "genres": ["ROCK"],
+            "genres": ["Rock"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 190,
             "artist_ids": [artist_id],
@@ -89,7 +89,7 @@ def test_put_song() -> None:
         f"{song_rest_url}/{song_id}",
         json={
             "titel": "Updated Song",
-            "genres": ["JAZZ"],
+            "genres": ["Jazz"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 222,
             "artist_ids": [artist_id],
@@ -120,7 +120,7 @@ def test_delete_song() -> None:
         song_rest_url,
         json={
             "titel": "Delete Song",
-            "genres": ["METAL"],
+            "genres": ["Metal"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 199,
             "artist_ids": [artist_id],
@@ -154,7 +154,7 @@ def test_post_song_artist_not_found() -> None:
         song_rest_url,
         json={
             "titel": "Ghost Song",
-            "genres": ["ROCK"],
+            "genres": ["Rock"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 200,
             "artist_ids": [999999],
@@ -176,7 +176,7 @@ def test_post_song_titel_exists() -> None:
         song_rest_url,
         json={
             "titel": "Glass Horizon",
-            "genres": ["ROCK"],
+            "genres": ["Rock"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 200,
             "artist_ids": [1010],
@@ -198,7 +198,7 @@ def test_put_song_not_found() -> None:
         f"{song_rest_url}/999999",
         json={
             "titel": "Missing Song",
-            "genres": ["ROCK"],
+            "genres": ["Rock"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 222,
             "artist_ids": [1000],
@@ -220,7 +220,7 @@ def test_put_song_titel_exists() -> None:
         f"{song_rest_url}/3020",
         json={
             "titel": "Glass Horizon",
-            "genres": ["ROCK"],
+            "genres": ["Rock"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 200,
             "artist_ids": [1010],
