@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101, D103  # noqa: RUF100
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@ from tests.integration.common_test import ARTIST_ALICE_ID, ctx, login, rest_url
 @mark.rest
 @mark.delete_request
 def test_delete() -> None:
+    """Teste erfolgreichen DELETE eines vorhandenen Artists."""
     # act
     token: Final = login()
     response: Final = delete(
@@ -43,6 +44,7 @@ def test_delete() -> None:
 @mark.rest
 @mark.delete_request
 def test_delete_not_found() -> None:
+    """Teste DELETE eines nicht vorhandenen Artists."""
     # arrange
     artist_id: Final = 999999
 

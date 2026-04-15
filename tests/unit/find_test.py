@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103, ARG005
+# ruff: noqa: S101, D103, ARG005  # noqa: RUF100
 # pylint: disable=redefined-outer-name
 
 """Unit-Tests fuer find() von ArtistService."""
@@ -56,6 +56,7 @@ def _artist(*, artist_id: int, name: str, email: str) -> Artist:
 @mark.unit
 @mark.unit_find
 def test_find_by_name(artist_service, session_mock) -> None:
+    """Teste das Finden eines Artists nach Name."""
     name = "Mock Artist"
     artist = _artist(artist_id=1, name=name, email="mock@email.test")
     queryparams = {"name": "Mock"}
@@ -74,6 +75,7 @@ def test_find_by_name(artist_service, session_mock) -> None:
 @mark.unit
 @mark.unit_find
 def test_find_by_name_not_found(artist_service, session_mock) -> None:
+    """Teste das Finden eines nicht vorhandenen Artists nach Name."""
     queryparams = {"name": "Notfound"}
     pageable = Pageable(size=5, number=0)
 
@@ -92,6 +94,7 @@ def test_find_by_name_not_found(artist_service, session_mock) -> None:
 @mark.unit
 @mark.unit_find
 def test_find_by_email(artist_service, session_mock) -> None:
+    """Teste das Finden eines Artists nach Email."""
     email = "mock@email.test"
     artist = _artist(artist_id=1, name="Mock Artist", email=email)
     queryparams = {"email": email}
@@ -109,6 +112,7 @@ def test_find_by_email(artist_service, session_mock) -> None:
 @mark.unit
 @mark.unit_find
 def test_find_by_email_not_found(artist_service, session_mock) -> None:
+    """Teste das Finden eines nicht vorhandenen Artists nach Email."""
     email = "not@found.mock"
     queryparams = {"email": email}
     pageable = Pageable(size=5, number=0)

@@ -1,4 +1,4 @@
-# ruff: noqa: D103
+# ruff: noqa: D103  # noqa: RUF100
 # Copyright (C) 2023 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,13 @@
 
 """Fixture für pytest: Neuladen der Datenbank."""
 
-from tests.integration.common_test import check_readiness, db_populate, keycloak_populate
 from pytest import fixture
+
+from tests.integration.common_test import (
+    check_readiness,
+    db_populate,
+    keycloak_populate,
+)
 
 # "Fixtures" sind Funktionen, die vor den Test-Funktionen ausgefuehrt werden, um z.B.
 # wiederholt benoetigte Daten bereitzustellen (URLs, DB-Verbindungen usw.).
@@ -37,18 +42,19 @@ from pytest import fixture
 # Anzeige aller fixtures ausgehend vom Wurzelverzeichnis:   uv run pytest --fixtures
 
 
-session_scope = "session"
-function_scope = "function"
+SESSION_SCOPE = "session"
+FUNCTION_SCOPE = "function"
 
 
-@fixture(scope=session_scope, autouse=True)
+@fixture(scope=SESSION_SCOPE, autouse=True)
 def check_readiness_per_session() -> None:
+    """Fixture, um die Readiness des Appservers zu prüfen."""
     check_readiness()
     # Ausgabe in report.html im Wurzelverzeichnis des Projekts
     print("Appserver ist 'ready'")
 
 
-@fixture(scope=function_scope, autouse=True)
+@fixture(scope=FUNCTION_SCOPE, autouse=True)
 def populate_per_test() -> None:
     """Fixture, um DB und Keycloak vor jedem Test neu zu laden."""
     # Ausgabe in report.html im Wurzelverzeichnis des Projekts
