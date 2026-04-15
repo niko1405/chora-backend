@@ -39,7 +39,7 @@ def _artist(
         vertrag=None,
         version=0,
         erzeugt=None,
-        aktualisert=None,
+        aktualisiert=None,
     )
     artist.vertrag = Vertrag(
         id=1,

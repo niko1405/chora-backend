@@ -57,7 +57,8 @@ class Artist(Base):
     )
     """Der Zeitstempel für das initiale INSERT in die DB-Tabelle."""
 
-    aktualisert: Mapped[datetime | None] = mapped_column(
+    aktualisiert: Mapped[datetime | None] = mapped_column(
+        "aktualisert",
         insert_default=datetime.now,
         onupdate=datetime.now,
         default=None,

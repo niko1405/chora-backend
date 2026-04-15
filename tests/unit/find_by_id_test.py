@@ -52,7 +52,7 @@ def _artist(*, artist_id: int, username: str) -> Artist:
         vertrag=None,
         version=0,
         erzeugt=None,
-        aktualisert=None,
+        aktualisiert=None,
     )
     artist.vertrag = Vertrag(
         id=artist_id,

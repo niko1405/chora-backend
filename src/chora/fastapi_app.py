@@ -31,6 +31,7 @@ from chora.graphql_api import graphql_router
 from chora.problem_details import create_problem_details
 from chora.repository.session_factory import engine
 from chora.router import (
+    artist_router,
     artist_write_router,
     auth_router,
     health_router,
@@ -110,6 +111,7 @@ async def log_response_time(
 # --------------------------------------------------------------------------------------
 # R E S T
 # --------------------------------------------------------------------------------------
+app.include_router(artist_router, prefix="/rest/artists")
 app.include_router(artist_write_router, prefix="/rest/artists")
 app.include_router(song_router, prefix="/rest/artists")
 app.include_router(song_write_router, prefix="/rest/artists")

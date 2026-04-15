@@ -38,7 +38,7 @@ def _artist(*, artist_id: int, name: str, email: str) -> Artist:
         vertrag=None,
         version=0,
         erzeugt=None,
-        aktualisert=None,
+        aktualisiert=None,
     )
     artist.vertrag = Vertrag(
         id=artist_id,
