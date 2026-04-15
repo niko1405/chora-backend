@@ -13,6 +13,7 @@ from fastapi.middleware.gzip import (
     GZipMiddleware,  # https://fastapi.tiangolo.com/advanced/middleware/#gzipmiddleware
 )
 from fastapi.responses import FileResponse
+from keycloak.exceptions import KeycloakPostError
 from loguru import logger
 from prometheus_fastapi_instrumentator import Instrumentator
 
@@ -48,6 +49,16 @@ from chora.service.exceptions import (
     UsernameExistsError,
     VersionOutdatedError,
 )
+
+
+def _extract_keycloak_error_message(err: KeycloakPostError) -> str:
+    """Keycloak-Fehlermeldung robust in einen lesbaren Text umwandeln."""
+    body = err.response_body
+    if body is None:
+        return str(err)
+
+    decoded = body.decode() if isinstance(body, bytes) else str(body)
+    return f"Keycloak-Validierung fehlgeschlagen: {decoded}"
 
 
 # --------------------------------------------------------------------------------------
@@ -265,4 +276,16 @@ def version_outdated_error_handler(
     return create_problem_details(
         status_code=status.HTTP_412_PRECONDITION_FAILED,
         detail=str(err),
+    )
+
+
+@app.exception_handler(KeycloakPostError)
+def keycloak_post_error_handler(
+    _request: Request,
+    err: KeycloakPostError,
+) -> Response:
+    """Exception-Handling für Keycloak-Validierungsfehler beim Schreiben."""
+    return create_problem_details(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail=_extract_keycloak_error_message(err),
     )

@@ -19,16 +19,16 @@
 from http import HTTPStatus
 from typing import Final
 
+from httpx import post
+from pytest import mark
+
 from tests.integration.common_test import (
     ARTIST_ALICE_EMAIL,
     ARTIST_ALICE_ID,
-    ARTIST_BRUNO_EMAIL,
     ctx,
     graphql_url,
     login_graphql,
 )
-from httpx import post
-from pytest import mark
 
 
 @mark.graphql

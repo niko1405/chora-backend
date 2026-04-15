@@ -65,7 +65,7 @@ def test_find_by_name(artist_service, session_mock) -> None:
     artist_slice = Slice(content=(artist,), total_elements=1)
     artist_service.repo.find = lambda **_: artist_slice
 
-    result = artist_service.find(queryparams=queryparams, pageable=pageable)
+    result = artist_service.find(suchparameter=queryparams, pageable=pageable)
 
     assert len(result.content) == 1
     assert result.content[0].name == name
@@ -81,7 +81,7 @@ def test_find_by_name_not_found(artist_service, session_mock) -> None:
     artist_service.repo.find = lambda **_: Slice(content=(), total_elements=0)
 
     with raises(NotFoundError) as err:
-        artist_service.find(queryparams=queryparams, pageable=pageable)
+        artist_service.find(suchparameter=queryparams, pageable=pageable)
 
     assert err.type == NotFoundError
     assert str(err.value) == "Not Found"
@@ -100,7 +100,7 @@ def test_find_by_email(artist_service, session_mock) -> None:
     session_mock.commit.return_value = None
     artist_service.repo.find = lambda **_: Slice(content=(artist,), total_elements=1)
 
-    result = artist_service.find(queryparams=queryparams, pageable=pageable)
+    result = artist_service.find(suchparameter=queryparams, pageable=pageable)
 
     assert len(result.content) == 1
     assert result.content[0].email == email
@@ -117,7 +117,7 @@ def test_find_by_email_not_found(artist_service, session_mock) -> None:
     artist_service.repo.find = lambda **_: Slice(content=(), total_elements=0)
 
     with raises(NotFoundError) as err:
-        artist_service.find(queryparams=queryparams, pageable=pageable)
+        artist_service.find(suchparameter=queryparams, pageable=pageable)
 
     assert str(err.value) == "Not Found"
     assert err.value.suchparameter is not None

@@ -24,7 +24,7 @@ def test_patch_artist_email() -> None:
     """Teste Teilaktualisierung mit neuer E-Mail."""
     # arrange
     artist_id: Final = ARTIST_ALICE_ID
-    
+
     # Get current version
     get_response: Final = get(f"{rest_url}/{artist_id}", verify=ctx)
     assert get_response.status_code == HTTPStatus.OK
@@ -53,7 +53,7 @@ def test_patch_artist_without_if_match() -> None:
     """Teste Ablehnung ohne If-Match Header."""
     # arrange
     artist_id: Final = ARTIST_BRUNO_ID
-    
+
     token: Final = login()
     headers = {"Authorization": f"Bearer {token}"}
 

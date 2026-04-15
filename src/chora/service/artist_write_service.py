@@ -55,7 +55,7 @@ class ArtistWriteService:
             song_ids,
         )
 
-        username: Final = artist.name
+        username: Final = artist.username
         if username is None:
             raise ValueError
 

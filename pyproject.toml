@@ -289,6 +289,7 @@ markers = [
     "get_request: GET-Requests",
     "post_request: POST-Requests",
     "put_request: PUT-Requests",
+    "patch_request: PATCH-Requests",
     "delete_request: DELETE-Requests",
     "login: Login mit der REST-Schnittstelle",
     "health: Health des Servers ueberpruefen",

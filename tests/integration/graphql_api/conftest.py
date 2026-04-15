@@ -23,6 +23,7 @@ from pytest import fixture
 
 
 session_scope = "session"
+function_scope = "function"
 
 
 @fixture(scope=session_scope, autouse=True)
@@ -32,9 +33,9 @@ def check_readiness_per_session() -> None:
     print("Appserver ist 'ready'")
 
 
-@fixture(scope=session_scope, autouse=True)
-def populate_per_session() -> None:
-    """Fixture, um die DB und Keycloak neu zu laden."""
+@fixture(scope=function_scope, autouse=True)
+def populate_per_test() -> None:
+    """Fixture, um DB und Keycloak vor jedem Test neu zu laden."""
     db_populate()
     print("DB ist neu geladen")
     keycloak_populate()

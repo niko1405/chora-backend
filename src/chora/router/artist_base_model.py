@@ -4,7 +4,7 @@ from datetime import date
 from typing import Annotated, Any, Final
 
 from loguru import logger
-from pydantic import BaseModel, EmailStr, StringConstraints
+from pydantic import BaseModel, EmailStr, StringConstraints, field_validator
 
 from chora.entity.artist import Artist
 
@@ -27,7 +27,7 @@ class ArtistBaseModel(BaseModel):
     username: Annotated[
         str,
         StringConstraints(
-            pattern=r"^[a-zA-Z\-\s]+$",
+            pattern=r"^[a-zA-Z0-9._-]+$",
             min_length=1,
             max_length=100,
         ),
@@ -39,6 +39,17 @@ class ArtistBaseModel(BaseModel):
 
     email: EmailStr
     """Die eindeutige Emailadresse."""
+
+    @field_validator("username")
+    @classmethod
+    def validate_username_keycloak(cls, username: str) -> str:
+        """Keycloak erlaubt keine Leerzeichen im Benutzernamen."""
+        if any(char.isspace() for char in username):
+            raise ValueError(
+                "username darf keine Leerzeichen enthalten "
+                "(erlaubt: Buchstaben, Ziffern, Punkt, Unterstrich, Bindestrich)"
+            )
+        return username
 
     def to_dict(self) -> dict[str, Any]:
         """Konvertiert das Pydantic-Modell in ein Dictionary."""

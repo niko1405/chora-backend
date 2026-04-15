@@ -25,6 +25,17 @@ from uuid import uuid4
 from httpx import get, post
 
 __all__ = [
+    "ARTIST_ADMIN_ID",
+    "ARTIST_ALICE_EMAIL",
+    "ARTIST_ALICE_ID",
+    "ARTIST_BRUNO_EMAIL",
+    "ARTIST_BRUNO_ID",
+    "ARTIST_CLEO_EMAIL",
+    "ARTIST_CLEO_ID",
+    "SONG_ID_1",
+    "SONG_ID_2",
+    "SONG_ID_3",
+    "SONG_ID_4",
     "base_url",
     "create_artist_payload",
     "ctx",
@@ -45,17 +56,6 @@ __all__ = [
     "timeout",
     "token_path",
     "username_admin",
-    "ARTIST_ADMIN_ID",
-    "ARTIST_ALICE_ID",
-    "ARTIST_ALICE_EMAIL",
-    "ARTIST_BRUNO_ID",
-    "ARTIST_BRUNO_EMAIL",
-    "ARTIST_CLEO_ID",
-    "ARTIST_CLEO_EMAIL",
-    "SONG_ID_1",
-    "SONG_ID_2",
-    "SONG_ID_3",
-    "SONG_ID_4",
 ]
 
 schema: Final = "https"
@@ -174,20 +174,13 @@ SONG_ID_3: Final = 3020  # Night Transit
 SONG_ID_4: Final = 3030  # Signal Bloom
 
 
-def create_artist_payload(*, marker: str | None = None) -> dict[str, Any]:
+def create_artist_payload() -> dict[str, Any]:
     """Erzeuge gueltige Testdaten fuer einen neuen Artist (für POST/DELETE Tests)."""
-    # Nutze marker als String oder generiere einen mit nur Buchstaben
-    if marker is None:
-        import random
-        import string
-        # Generiere mit nur Buchstaben (kein Hex), um das Regex-Pattern zu erfüllen
-        marker = ''.join(random.choices(string.ascii_lowercase, k=6))
-    
     return {
-        "name": f"TestArtist {marker.capitalize()}",
-        "email": f"test.{marker}@acme.de",
+        "name": "Test Artist",
+        "email": "test.artist@acme.de",
         "geburtsdatum": "1995-01-01",
-        "username": f"test-{marker}",
+        "username": "test-artist",
         "vertrag": {
             "startdatum": "2020-01-01",
             "enddatum": "2030-01-01",

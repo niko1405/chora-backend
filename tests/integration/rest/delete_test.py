@@ -19,27 +19,19 @@
 from http import HTTPStatus
 from typing import Final
 
-from httpx import delete, post
+from httpx import delete
 from pytest import mark
 
-from tests.integration.common_test import create_artist_payload, ctx, login, rest_url
+from tests.integration.common_test import ARTIST_ALICE_ID, ctx, login, rest_url
 
 
 @mark.rest
 @mark.delete_request
 def test_delete() -> None:
-    # arrange
-    artist = create_artist_payload(marker="delete")
-    create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == HTTPStatus.CREATED
-    location = create_response.headers.get("Location")
-    assert location is not None
-    artist_id: Final = int(location.rsplit("/", maxsplit=1)[-1])
-
     # act
     token: Final = login()
     response: Final = delete(
-        f"{rest_url}/{artist_id}",
+        f"{rest_url}/{ARTIST_ALICE_ID}",
         headers={"Authorization": f"Bearer {token}"},
         verify=ctx,
     )

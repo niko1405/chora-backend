@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,16 +19,16 @@
 from http import HTTPStatus
 from re import search
 from typing import Final
-from random import choices
-from string import ascii_lowercase
+
+from httpx import post
+from pytest import mark
 
 from tests.integration.common_test import (
     ARTIST_ALICE_EMAIL,
+    create_artist_payload,
     ctx,
     rest_url,
 )
-from httpx import post
-from pytest import mark
 
 
 @mark.rest
@@ -36,21 +36,7 @@ from pytest import mark
 def test_post() -> None:
     """Teste erfolgreiche Erstellung eines neuen Artists."""
     # arrange
-    suffix: Final = ''.join(choices(ascii_lowercase, k=8))
-    neuer_artist: Final = {
-        "name": f"New Artist {suffix}",
-        "email": f"newartist.{suffix}@acme.de",
-        "geburtsdatum": "1995-01-01",
-        "username": f"newartist-{suffix}",
-        "vertrag": {
-            "startdatum": "2020-01-01",
-            "enddatum": "2030-01-01",
-            "dauer": 120,
-            "firma": "Test Records",
-            "gehalt": 75000,
-        },
-        "songs": [],
-    }
+    neuer_artist: Final = create_artist_payload()
     headers = {"Content-Type": "application/json"}
 
     # act
@@ -142,14 +128,24 @@ def test_post_email_exists() -> None:
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
     assert ARTIST_ALICE_EMAIL in response.text
 
+
+@mark.rest
+@mark.post_request
+def test_post_invalid_username() -> None:
+    """Teste Ablehnung eines Usernames mit Leerzeichen (Keycloak-kompatibel)."""
+    # arrange
+    neuer_artist_invalid: Final = create_artist_payload()
+    neuer_artist_invalid["username"] = "invalid username"
+    headers = {"Content-Type": "application/json"}
+
     # act
     response: Final = post(
         rest_url,
-        json=json_invalid,
+        json=neuer_artist_invalid,
         headers=headers,
         verify=ctx,
     )
 
     # assert
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-    assert "should be a valid dictionary" in response.text
+    assert "username" in response.text
