@@ -7,6 +7,7 @@ from loguru import logger
 from sqlalchemy.exc import SQLAlchemyError
 
 from chora.entity.artist import Artist
+from chora.entity.vertrag import Vertrag
 from chora.repository.artist_repository import ArtistRepository
 from chora.repository.session_factory import Session
 from chora.repository.song_repository import SongRepository
@@ -39,7 +40,7 @@ class ArtistWriteService:
         self.song_repo: SongRepository = song_repo
         self.user_service: UserService = user_service
 
-    def create(self, artist: Artist) -> ArtistDTO:
+    def create(self, artist: Artist, song_ids: list[int] | None = None) -> ArtistDTO:
         """Einen neuen Artist anlegen.
 
         :param artist: Der neue Artist ohne ID
@@ -48,10 +49,10 @@ class ArtistWriteService:
         :raises EmailExistsError: Falls die Emailadresse bereits existiert
         """
         logger.debug(
-            "artist={}, vertrag={}, songs={}",
+            "artist={}, vertrag={}, song_ids={}",
             artist,
             artist.vertrag,
-            artist.songs,
+            song_ids,
         )
 
         username: Final = artist.name
@@ -64,6 +65,10 @@ class ArtistWriteService:
         email: Final = artist.email
         if self.user_service.email_exists(email):
             raise EmailExistsError(email=email)
+
+        if song_ids is not None:
+            with Session() as session:
+                self._validate_song_ids(song_ids=song_ids, session=session)
 
         user: Final = User(
             username=username,
@@ -79,6 +84,12 @@ class ArtistWriteService:
         try:
             with Session() as session:
                 artist_db: Final = self.repo.create(artist=artist, session=session)
+                if song_ids is not None:
+                    self._replace_songs_by_ids(
+                        artist_db=artist_db,
+                        song_ids=song_ids,
+                        session=session,
+                    )
                 artist_dto: Final = ArtistDTO(artist_db)
                 session.commit()
         except SQLAlchemyError:
@@ -167,20 +178,16 @@ class ArtistWriteService:
             if update_options.replace_vertrag:
                 if artist.vertrag is None:
                     raise ValueError("Vertrag muss fuer Vollersatz gesetzt sein")
-
-                if artist_db.vertrag is not None:
-                    session.delete(artist_db.vertrag)
-                    session.flush()
-
-                artist.vertrag.artist = artist_db
-                artist_db.vertrag = artist.vertrag
+                self._replace_vertrag(
+                    artist_db=artist_db,
+                    new_vertrag=artist.vertrag,
+                    session=session,
+                )
 
             if update_options.replace_songs:
                 self._replace_songs(
                     artist_db=artist_db,
-                    songs=artist.songs,
                     song_ids=update_options.song_ids,
-                    artist_id=artist_id,
                     session=session,
                 )
 
@@ -258,7 +265,6 @@ class ArtistWriteService:
                 artist_db=artist_db,
                 patch_data=patch_data,
                 update_options=update_options,
-                artist_id=artist_id,
                 session=session,
             )
             self._sync_keycloak_patch_if_needed(
@@ -295,26 +301,43 @@ class ArtistWriteService:
         artist_db: Artist,
         patch_data: ArtistPatchData,
         update_options: ArtistUpdateOptions,
-        artist_id: int,
         session,
     ) -> None:
         """Optionale Relationen aus PATCH anwenden."""
         if update_options.replace_vertrag:
-            if artist_db.vertrag is not None:
-                session.delete(artist_db.vertrag)
-                session.flush()
-            if patch_data.vertrag is not None:
-                patch_data.vertrag.artist = artist_db
-            artist_db.vertrag = patch_data.vertrag
+            self._replace_vertrag(
+                artist_db=artist_db,
+                new_vertrag=patch_data.vertrag,
+                session=session,
+            )
 
         if update_options.replace_songs:
             self._replace_songs(
                 artist_db=artist_db,
-                songs=patch_data.songs if patch_data.songs is not None else [],
                 song_ids=update_options.song_ids,
-                artist_id=artist_id,
                 session=session,
             )
+
+    def _replace_vertrag(
+        self,
+        *,
+        artist_db: Artist,
+        new_vertrag: Vertrag | None,
+        session,
+    ) -> None:
+        """Vertrag eines Artists durch ein neues Objekt ersetzen."""
+        if artist_db.vertrag is not None:
+            session.delete(artist_db.vertrag)
+            session.flush()
+
+        if new_vertrag is None:
+            artist_db.vertrag = None
+            return
+
+        new_vertrag.artist = artist_db
+        artist_db.vertrag = new_vertrag
+        session.add(new_vertrag)
+        session.flush()
 
     def _sync_keycloak_patch_if_needed(
         self,
@@ -359,34 +382,20 @@ class ArtistWriteService:
     def _replace_songs(
         self,
         artist_db: Artist,
-        songs: list,
         song_ids: list[int] | None,
-        artist_id: int,
         session,
     ) -> None:
         """Songs fuer einen Artist vollständig ersetzen."""
-        if song_ids is not None:
-            self._replace_songs_by_ids(
-                artist_db=artist_db,
-                song_ids=song_ids,
-                artist_id=artist_id,
-                session=session,
-            )
-            return
-
-        for song_db in list(artist_db.songs):
-            self.song_repo.delete(song=song_db, session=session)
-
-        artist_db.songs = []
-        for song in songs:
-            song.artist = artist_db
-            self.song_repo.create(song=song, session=session)
+        self._replace_songs_by_ids(
+            artist_db=artist_db,
+            song_ids=song_ids if song_ids is not None else [],
+            session=session,
+        )
 
     def _replace_songs_by_ids(
         self,
         artist_db: Artist,
         song_ids: list[int],
-        artist_id: int,
         session,
     ) -> None:
         """Songs fuer einen Artist durch eine Liste vorhandener Song-IDs ersetzen."""
@@ -395,20 +404,32 @@ class ArtistWriteService:
 
         songs_from_ids = self.song_repo.find_by_ids(song_ids=song_ids, session=session)
         if len(songs_from_ids) != len(song_ids):
-            raise NotFoundError(artist_id=artist_id)
+            raise NotFoundError
 
         songs_by_id = {song.id: song for song in songs_from_ids}
         ordered_songs = [songs_by_id[song_id] for song_id in song_ids]
 
-        if any(song.artist_id != artist_id for song in ordered_songs):
-            raise ValueError("Alle Song-IDs muessen zu diesem Artist gehoeren")
-
         keep_song_ids = set(song_ids)
         for song_db in list(artist_db.songs):
             if song_db.id not in keep_song_ids:
-                self.song_repo.delete(song=song_db, session=session)
+                if artist_db in song_db.artists:
+                    song_db.artists.remove(artist_db)
+                if len(song_db.artists) == 0:
+                    self.song_repo.delete(song=song_db, session=session)
+
+        for song in ordered_songs:
+            if artist_db not in song.artists:
+                song.artists.append(artist_db)
 
         artist_db.songs = ordered_songs
+
+    def _validate_song_ids(self, song_ids: list[int], session) -> None:
+        """Vorab prüfen, ob alle Song-IDs existieren."""
+        if len(song_ids) != len(set(song_ids)):
+            raise ValueError("Song-IDs duerfen nicht mehrfach vorkommen")
+        songs_from_ids = self.song_repo.find_by_ids(song_ids=song_ids, session=session)
+        if len(songs_from_ids) != len(song_ids):
+            raise NotFoundError
 
     def delete_by_id(self, artist_id: int) -> None:
         """Einen Artist anhand seiner ID löschen.

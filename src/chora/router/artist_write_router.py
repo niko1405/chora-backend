@@ -64,7 +64,10 @@ def post(
     :raises UsernameExistsError: Falls der Benutzername bereits existiert
     """
     logger.debug("artist_model={}", artist_model)
-    artist_dto: Final = service.create(artist=artist_model.to_artist())
+    artist_dto: Final = service.create(
+        artist=artist_model.to_artist(),
+        song_ids=artist_model.songs,
+    )
     logger.debug("artist_dto={}", artist_dto)
 
     return Response(
@@ -114,10 +117,6 @@ def put(
     replace_vertrag: Final = "vertrag" in artist_update_model.model_fields_set
     replace_songs: Final = "songs" in artist_update_model.model_fields_set
 
-    songs_from_models = artist_update_model.songs_to_entities()
-    if songs_from_models is not None:
-        artist.songs = songs_from_models
-
     vertrag = artist_update_model.vertrag_to_entity()
     if vertrag is not None:
         artist.vertrag = vertrag
@@ -158,7 +157,6 @@ def patch(
         return version_or_response
     version_int: Final = version_or_response
 
-    songs_from_models = artist_patch_model.songs_to_entities()
     vertrag = artist_patch_model.vertrag_to_entity()
 
     artist_modified: Final = service.patch(
@@ -171,7 +169,6 @@ def patch(
                 else str(artist_patch_model.email)
             ),
             vertrag=vertrag,
-            songs=songs_from_models,
         ),
         artist_id=artist_id,
         version=version_int,
