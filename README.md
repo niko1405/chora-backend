@@ -3,72 +3,78 @@
 Chora ist eine FastAPI-Anwendung zur Verwaltung von Artists, Songs und Verträgen.
 Die Anwendung stellt REST- und GraphQL-Schnittstellen bereit, nutzt PostgreSQL für
 die Persistenz und Keycloak für die Authentifizierung. Zusätzlich sind Health-,
-Shutdown- und Dev-Endpunkte sowie Prometheus-Metriken integriert.
+Shutdown- und Dev-Endpunkte sowie Prometheus-Metriken integriert. Songs und
+Artists sind dabei über eine M:N-Beziehung verbunden.
 
 ## Architektur
 
 ```mermaid
 flowchart TB
-	client[Browser / REST Client / GraphQL Client] --> app[FastAPI App<br/>src/chora/fastapi_app.py]
+  client[Browser / REST Client / GraphQL Client] --> app[FastAPI App<br/>src/chora/fastapi_app.py]
 
-	subgraph api[API Layer]
-		rest[REST Router<br/>artist_router, artist_write_router,<br/>song_router, song_write_router]
-		gql[GraphQL Router<br/>src/chora/graphql_api]
-		auth[Auth Router<br/>src/chora/security]
-		ops[Health / Shutdown / Dev Router]
-	end
+  subgraph api[API Layer]
+    rest[REST Router<br/>artist_router, artist_write_router,<br/>song_router, song_write_router]
+    gql[GraphQL Router<br/>src/chora/graphql_api]
+    auth[Auth Router<br/>src/chora/security]
+    ops[Health / Shutdown / Dev Router]
+  end
 
-	app --> rest
-	app --> gql
-	app --> auth
-	app --> ops
+  app --> rest
+  app --> gql
+  app --> auth
+  app --> ops
 
-	subgraph app_layer[Application Layer]
-		artist_service[Artist Service / ArtistWriteService]
-		song_service[Song Service / SongWriteService]
-		dto[DTOs / Problem Details]
-	end
+  subgraph app_layer[Application Layer]
+    artist_service[Artist Service / ArtistWriteService]
+    song_service[Song Service / SongWriteService]
+    dto[DTOs / Problem Details]
+  end
 
-	rest --> artist_service
-	rest --> song_service
-	gql --> artist_service
-	auth --> artist_service
-	app --> dto
+  rest --> artist_service
+  rest --> song_service
+  gql --> artist_service
+  auth --> artist_service
+  app --> dto
 
-	subgraph domain[Domain Layer]
-		artist[Artist]
-		song[Song]
-		vertrag[Vertrag]
-	end
+  subgraph domain[Domain Layer]
+    artist[Artist]
+    song[Song]
+    vertrag[Vertrag]
+  end
 
-	artist_service --> artist
-	artist_service --> vertrag
-	song_service --> song
+  artist_service --> artist
+  artist_service --> vertrag
+  song_service --> song
+  song_service --> artist
 
-	subgraph data[Data Layer]
-		artist_repo[ArtistRepository]
-		song_repo[SongRepository]
-		session[SQLAlchemy Session / Engine]
-		db[(PostgreSQL)]
-	end
+  subgraph data[Data Layer]
+    artist_repo[ArtistRepository]
+    song_repo[SongRepository]
+    song_artist[song_artist Join-Tabelle]
+    session[SQLAlchemy Session / Engine]
+    db[(PostgreSQL)]
+  end
 
-	artist --> artist_repo --> session --> db
-	song --> song_repo --> session --> db
+  artist --> artist_repo --> session --> db
+  song --> song_repo --> session --> db
+  artist --> song_artist
+  song --> song_artist
+  song_artist --> session
 
-	subgraph external[External Services]
-		keycloak[(Keycloak)]
-		prometheus[(Prometheus / Grafana)]
-	end
+  subgraph external[External Services]
+    keycloak[(Keycloak)]
+    prometheus[(Prometheus / Grafana)]
+  end
 
-	auth --> keycloak
-	app --> prometheus
+  auth --> keycloak
+  app --> prometheus
 ```
 
 ## Was die Anwendung abdeckt
 
 - `Artist` als zentrales Aggregat mit 1:1-Beziehung zu `Vertrag`
-- `Song` als 1:n-Beziehung zu `Artist`
-- REST für Lesen und Schreiben
+- `Song` als eigenständiges Aggregat mit M:N-Beziehung zu `Artist`
+- REST für Lesen und Schreiben von Artists und Songs
 - GraphQL für flexible Abfragen
 - Authentifizierung und Autorisierung über Keycloak
 - Persistenz über SQLAlchemy und PostgreSQL
@@ -80,73 +86,92 @@ Basis-URL lokal: `https://127.0.0.1:8000`
 
 ### REST-Endpunkte
 
-| Methode | Pfad | Auth | Was zeichnet ihn aus | Typische Antwort |
-|---|---|---|---|---|
-| GET | `/rest/artists/{artist_id}` | User im Request-Kontext | Liefert einen Artist mit ETag-Semantik | `200` JSON-Objekt + `ETag`, oder `304` bei passendem `If-None-Match` |
-| GET | `/rest/artists` | User im Request-Kontext | Suche per Query (`name`, `email`) + Pagination (`page`, `size`) | `200` Page-JSON mit `content` und Meta-Feldern |
-| POST | `/rest/artists` | offen (fachlich validiert) | Legt Artist inkl. Vertrag/Songs an | `201` ohne Body, `Location` zeigt auf neue Ressource |
-| PUT | `/rest/artists/{artist_id}` | `ADMIN` oder `USER` | Vollständiges Update mit Versionskontrolle | `204` ohne Body, neues `ETag`; Fehler z.B. `428`/`412` bei Headerproblemen |
-| PATCH | `/rest/artists/{artist_id}` | `ADMIN` oder `USER` | Partielles Update mit Versionskontrolle | `204` ohne Body, neues `ETag` |
-| DELETE | `/rest/artists/{artist_id}` | `ADMIN` | Löscht Artist inkl. abhängiger Daten per FK-Cascade | `204` ohne Body |
-| GET | `/rest/artists/{artist_id}/songs/{song_id}` | User im Request-Kontext | Liest genau einen Song eines Artists | `200` Song-JSON |
-| GET | `/rest/artists/{artist_id}/songs` | User im Request-Kontext | Song-Liste eines Artists mit Pagination | `200` Page-JSON mit Songs |
-| POST | `/rest/artists/{artist_id}/songs` | `ADMIN` oder `USER` | Legt Song für Artist an | `201` ohne Body, `Location` auf neuen Song |
-| PUT | `/rest/artists/{artist_id}/songs/{song_id}` | `ADMIN` oder `USER` | Ersetzt Song-Daten | `204` ohne Body |
-| DELETE | `/rest/artists/{artist_id}/songs/{song_id}` | `ADMIN` oder `USER` | Löscht Song | `204` ohne Body |
-| POST | `/auth/token` | keine Rollen notwendig | Login mit Username/Passwort, liefert JWT + Rollen | `200` JSON mit `token`, `expires_in`, `rollen` |
-| GET | `/health/liveness` | offen | Prozess-Liveness für Orchestrierung | `200` `{ "status": "up" }` |
-| GET | `/health/readiness` | offen | DB-Readiness via `SELECT 1` | `200` `{ "db": "up" }` oder `{ "db": "down" }` |
-| POST | `/admin/shutdown` | `ADMIN` | Stoppt den Server-Prozess | `200` mit Hinweis-JSON |
-| POST | `/dev/db_populate` | `ADMIN` (nur Dev-Modus) | Lädt DB-Testdaten neu | `200` `{ "db_populate": "success" }` |
-| POST | `/dev/keycloak_populate` | `ADMIN` (nur Dev-Modus) | Lädt Keycloak-Testdaten neu | `200` `{ "keycloak_populate": "success" }` |
-| GET | `/metrics` | offen | Prometheus-Metriken | `200` Textformat für Scraping |
+#### Artists
+
+| Methode | Pfad | Auth | Was kann man damit machen? | Typische Antwort |
+| --- | --- | --- | --- | --- |
+| GET | `/rest/artists/{artist_id}` | offen | Lädt einen Artist per ID und liefert `ETag` für Cache-/Versionsprüfung | `200` JSON-Objekt + `ETag`, oder `304` bei passendem `If-None-Match` |
+| GET | `/rest/artists` | offen | Sucht Artists nach Query-Parametern wie `name`, `email`, `page`, `size` | `200` Page-JSON mit `content` und Meta-Feldern |
+| POST | `/rest/artists` | offen | Legt einen Artist an und kann direkt Vertrag sowie Songs zuordnen | `201` ohne Body, `Location` zeigt auf neue Ressource |
+| PUT | `/rest/artists/{artist_id}` | `ADMIN` oder `USER` | Ersetzt einen Artist vollständig, inklusive optionaler Vertrags- und Song-Zuordnungen | `204` ohne Body, neues `ETag`; Fehler z.B. `428`/`412` bei Headerproblemen |
+| PATCH | `/rest/artists/{artist_id}` | `ADMIN` oder `USER` | Ändert nur ausgewählte Artist-Felder und kann Zuordnungen gezielt anpassen | `204` ohne Body, neues `ETag` |
+| DELETE | `/rest/artists/{artist_id}` | `ADMIN` | Entfernt einen Artist und löst die Zuordnungen in den abhängigen Tabellen auf | `204` ohne Body |
+
+#### Songs
+
+| Methode | Pfad | Auth | Was kann man damit machen? | Typische Antwort |
+| --- | --- | --- | --- | --- |
+| GET | `/rest/songs` | offen | Listet Songs mit Pagination, optional gefiltert über `artist_id` | `200` Page-JSON mit `content` und Meta-Feldern |
+| GET | `/rest/songs/{song_id}` | offen | Lädt einen Song per ID, optional im Kontext eines Artists über `artist_id` | `200` Song-JSON |
+| POST | `/rest/songs` | `ADMIN` oder `USER` | Legt einen Song an und verknüpft ihn direkt mit einer oder mehreren Artists über `artist_ids` | `201` ohne Body, `Location` zeigt auf neue Ressource |
+| PUT | `/rest/songs/{song_id}` | `ADMIN` oder `USER` | Ersetzt einen Song vollständig und aktualisiert die Artist-Zuordnungen | `204` ohne Body |
+| DELETE | `/rest/songs/{song_id}` | `ADMIN` oder `USER` | Löscht einen Song und entfernt die Zuordnungen in der Join-Tabelle | `204` ohne Body |
+
+#### Auth, Betrieb und Dev
+
+| Methode | Pfad | Auth | Was kann man damit machen? | Typische Antwort |
+| --- | --- | --- | --- | --- |
+| POST | `/auth/token` | keine Rollen notwendig | Meldet Benutzer mit Username und Passwort an und liefert ein JWT mit Rollen | `200` JSON mit `token`, `expires_in`, `rollen` |
+| GET | `/health/liveness` | offen | Prüft, ob der Prozess läuft | `200` `{ "status": "up" }` |
+| GET | `/health/readiness` | offen | Prüft die Datenbankverbindung mit `SELECT 1` | `200` `{ "db": "up" }` oder `{ "db": "down" }` |
+| POST | `/admin/shutdown` | `ADMIN` | Stoppt den Serverprozess kontrolliert | `200` mit Hinweis-JSON |
+| POST | `/dev/db_populate` | `ADMIN` (nur Dev-Modus) | Lädt die Beispieldaten in die Datenbank neu | `200` `{ "db_populate": "success" }` |
+| POST | `/dev/keycloak_populate` | `ADMIN` (nur Dev-Modus) | Lädt die Beispiel-User und Rollen in Keycloak neu | `200` `{ "keycloak_populate": "success" }` |
+| GET | `/metrics` | offen | Stellt Prometheus-Metriken für Scraping bereit | `200` Textformat für Prometheus |
 
 ### GraphQL-Endpunkt
 
 - Endpoint: `/graphql`
 - Zugriff: typischerweise `POST` für Queries/Mutations, `GET` für IDE je nach Konfiguration
 
+GraphQL bietet aktuell vor allem Zugriff auf Artists und die Anmeldung:
+
+- `artist(artistId)` lädt einen einzelnen Artist.
+- `artists(suchparameter)` sucht Artists über Filter wie Name, Genre, Alter und E-Mail.
+- `create(artistInput)` legt einen Artist inklusive Vertrag und Songs an.
+- `login(username, password)` liefert Token und Rollen.
+
 Beispiele:
 
 ```graphql
 query ArtistById {
-	artist(artistId: "1000") {
-		id
-		name
-		email
-		vertrag {
-			firma
-			gehalt
-		}
-		songs {
-			id
-			titel
-		}
-	}
+  artist(artistId: "1000") {
+    id
+    name
+    email
+    vertrag {
+      firma
+      gehalt
+    }
+    songs {
+      id
+      titel
+    }
+  }
 }
 ```
 
 ```graphql
 mutation CreateArtist {
-	create(
-		artistInput: {
-			name: "Max Example"
-			geburtsdatum: "1995-03-14"
-			email: "max@example.org"
-			username: "max"
-			vertrag: {
-				artistId: 0
-				startdatum: "2025-01-01"
-				enddatum: "2026-01-01"
-				dauer: 12
-				firma: "Label GmbH"
-				gehalt: 2500
-			}
-			songs: []
-		}
-	) {
-		id
-	}
+  create(
+    artistInput: {
+      name: "Max Example"
+      geburtsdatum: "1995-03-14"
+      email: "max@example.org"
+      username: "max"
+      vertrag: {
+        artistId: 0
+        startdatum: "2025-01-01"
+        enddatum: "2026-01-01"
+        dauer: 12
+        firma: "Label GmbH"
+        gehalt: 2500
+      }
+      songs: []
+    }
+  ) {
+    id
+  }
 }
 ```
 
@@ -206,6 +231,7 @@ uvx ty check src tests
 
 - Die DB-Struktur liegt in `src/chora/config/resources/postgresql/create.sql`.
 - Das passende Zurücksetzen der Tabellen passiert über `drop.sql`.
+- Die M:N-Verknüpfung zwischen Songs und Artists liegt in der Tabelle `song_artist`.
 - Im Dev-Modus können DB und Keycloak automatisch vorbefüllt werden.
 - OpenAPI ist unter `https://127.0.0.1:8000/docs` verfügbar.
 
