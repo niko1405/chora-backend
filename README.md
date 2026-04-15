@@ -235,20 +235,6 @@ uvx ty check src tests
 - Im Dev-Modus können DB und Keycloak automatisch vorbefüllt werden.
 - OpenAPI ist unter `https://127.0.0.1:8000/docs` verfügbar.
 
-## Mermaid in VS Code und GitHub
-
-Kurz: Ja, das kann sich unterscheiden.
-
-- GitHub rendert Mermaid in `README.md` nativ.
-- VS Code zeigt Mermaid nur dann gerendert, wenn die Markdown-Vorschau Mermaid unterstützt.
-- In der reinen Textansicht siehst du immer nur den Mermaid-Codeblock.
-
-Wenn du in VS Code keine Renderung siehst:
-
-1. Markdown-Vorschau öffnen (`Ctrl+Shift+V`).
-2. Sicherstellen, dass Mermaid in der Vorschau aktiv ist (je nach VS-Code-Version/Setup).
-3. Optional eine Mermaid-Extension installieren, falls dein Setup es nicht nativ rendert.
-
 ## Kurz gesagt
 
 Chora ist eine schlanke, schichtenbasierte FastAPI-Anwendung mit klarer Trennung
