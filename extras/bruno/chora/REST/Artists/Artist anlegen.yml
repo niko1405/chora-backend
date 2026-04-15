@@ -1,7 +1,7 @@
 info:
   name: Artist anlegen
   type: http
-  seq: 5
+  seq: 6
 
 http:
   method: POST
@@ -21,14 +21,7 @@ http:
           "firma": "Universal",
           "gehalt": 120000.0
         },
-        "songs": [
-          {
-            "titel": "Bruno Song",
-            "genres": ["Rock"],
-            "erscheinungsdatum": "2026-03-01",
-            "dauer": 210
-          }
-        ]
+        "songs": [3040]
       }
   auth: inherit
 

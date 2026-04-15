@@ -1,22 +1,27 @@
 info:
-  name: Artist mit ID 1 loeschen
+  name: Artist mit ID 1010
   type: http
-  seq: 9
+  seq: 4
 
 http:
-  method: DELETE
+  method: GET
   url: "{{restArtistsUrl}}/:artistId"
+  headers:
+    - name: Accept
+      value: application/json
   params:
     - name: artistId
-      value: "999999"
+      value: "1010"
       type: path
-  auth: inherit
 
 runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "404"
+      value: "200"
+    - expression: res.body.id
+      operator: eq
+      value: "1010"
 
 settings:
   encodeUrl: true

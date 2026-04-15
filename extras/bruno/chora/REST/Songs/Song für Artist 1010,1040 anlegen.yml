@@ -1,0 +1,31 @@
+info:
+  name: Song für Artist 1010,1040 anlegen
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{restSongsUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "titel": "Bruno Song Alt",
+        "genres": ["Jazz"],
+        "erscheinungsdatum": "2024-05-01",
+        "dauer": 190,
+        "artist_ids": [1010, 1040]
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

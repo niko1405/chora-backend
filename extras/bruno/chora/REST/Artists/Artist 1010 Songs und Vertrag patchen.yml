@@ -1,27 +1,31 @@
 info:
-  name: Artist mit ID 1000
+  name: Artist 1010 Songs und Vertrag patchen
   type: http
-  seq: 4
+  seq: 9
 
 http:
-  method: GET
+  method: PATCH
   url: "{{restArtistsUrl}}/:artistId"
   headers:
-    - name: Accept
-      value: application/json
+    - name: If-Match
+      value: '"2"'
   params:
     - name: artistId
-      value: "1000"
+      value: "1010"
       type: path
+  body:
+    type: json
+    data: |-
+      {
+        "songs": []
+      }
+  auth: inherit
 
 runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "200"
-    - expression: res.body.id
-      operator: eq
-      value: "1000"
+      value: "204"
 
 settings:
   encodeUrl: true

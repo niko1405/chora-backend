@@ -1,17 +1,14 @@
 info:
-  name: Song 1 von Artist 1 aktualisieren
+  name: Song 3010 aktualisieren
   type: http
-  seq: 5
+  seq: 6
 
 http:
   method: PUT
-  url: "{{restArtistsUrl}}/:artistId/songs/:songId"
+  url: "{{restSongsUrl}}/:songId"
   params:
-    - name: artistId
-      value: "1"
-      type: path
     - name: songId
-      value: "999999"
+      value: "3010"
       type: path
   body:
     type: json
@@ -19,15 +16,17 @@ http:
       {
         "titel": "Song Updated",
         "genres": ["Pop"],
-        "erscheinungsdatum": "2026-06-01",
-        "dauer": 205
+        "erscheinungsdatum": "2024-06-01",
+        "dauer": 205,
+        "artist_ids": [1010, 1050]
       }
+  auth: inherit
 
 runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "404"
+      value: "204"
 
 settings:
   encodeUrl: true

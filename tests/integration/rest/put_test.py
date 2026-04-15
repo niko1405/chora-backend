@@ -25,6 +25,7 @@ from pytest import mark
 from tests.integration.common_test import create_artist_payload, ctx, login, rest_url
 
 EMAIL_UPDATE: Final = "artist.update@acme.de"
+SONG_ID_ALICE_FIRST: Final = 3010
 
 
 @mark.rest
@@ -43,6 +44,7 @@ def test_put() -> None:
         "name": "Artistput",
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-09",
+        "songs": [SONG_ID_ALICE_FIRST],
     }
     token: Final = login()
     headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}

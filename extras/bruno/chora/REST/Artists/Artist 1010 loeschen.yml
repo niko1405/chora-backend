@@ -1,25 +1,15 @@
 info:
-  name: Artist mit ID 1 patchen
+  name: Artist 1010 loeschen
   type: http
-  seq: 8
+  seq: 10
 
 http:
-  method: PATCH
+  method: DELETE
   url: "{{restArtistsUrl}}/:artistId"
-  headers:
-    - name: If-Match
-      value: '"2"'
   params:
     - name: artistId
-      value: "1051"
+      value: "1010"
       type: path
-  body:
-    type: json
-    data: |-
-      {
-        "email": "bruno.echo@acme.de",
-        "username": "teest"
-      }
   auth: inherit
 
 runtime:

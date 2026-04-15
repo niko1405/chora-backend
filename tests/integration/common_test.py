@@ -40,6 +40,8 @@ __all__ = [
     "password_admin",
     "rest_path",
     "rest_url",
+    "song_rest_path",
+    "song_rest_url",
     "timeout",
     "token_path",
     "username_admin",
@@ -52,6 +54,8 @@ host: Final = "127.0.0.1"
 base_url: Final = f"{schema}://{host}:{port}"
 rest_path: Final = "/rest/artists"
 rest_url: Final = f"{base_url}{rest_path}"
+song_rest_path: Final = "/rest/songs"
+song_rest_url: Final = f"{base_url}{song_rest_path}"
 health_url: Final = f"{base_url}/health"
 graphql_path: Final = "/graphql"
 graphql_url: Final = f"{base_url}/graphql"
@@ -159,12 +163,5 @@ def create_artist_payload(*, marker: str | None = None) -> dict[str, Any]:
             "firma": "Acme Records",
             "gehalt": 75000,
         },
-        "songs": [
-            {
-                "titel": "MySong",
-                "genres": ["ROCK"],
-                "erscheinungsdatum": "2020-02-02",
-                "dauer": 180,
-            }
-        ],
+        "songs": [],
     }

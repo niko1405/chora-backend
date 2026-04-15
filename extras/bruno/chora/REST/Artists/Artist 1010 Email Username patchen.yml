@@ -1,30 +1,32 @@
 info:
-  name: Song für Artist 1010 anlegen
+  name: "Artist 1010 Email Username patchen "
   type: http
-  seq: 4
+  seq: 8
 
 http:
-  method: POST
-  url: "{{restArtistsUrl}}/:artistId/songs"
+  method: PATCH
+  url: "{{restArtistsUrl}}/:artistId"
+  headers:
+    - name: If-Match
+      value: '"2"'
   params:
     - name: artistId
-      value: "1010"
+      value: "1051"
       type: path
   body:
     type: json
     data: |-
       {
-        "titel": "Bruno Song Neu",
-        "genres": ["Jazz"],
-        "erscheinungsdatum": "2026-05-01",
-        "dauer": 190
+        "email": "bruno.echo@acme.de",
+        "username": "test"
       }
+  auth: inherit
 
 runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "201"
+      value: "404"
 
 settings:
   encodeUrl: true

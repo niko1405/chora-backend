@@ -20,7 +20,7 @@ from http import HTTPStatus
 from typing import Final
 from httpx import get
 from pytest import mark
-from tests.integration.common_test import ctx, rest_url
+from tests.integration.common_test import ctx, rest_url, song_rest_url
 
 
 ARTIST_ID_ADMIN: Final = 1000
@@ -60,7 +60,8 @@ def test_get_artist_by_id_not_found() -> None:
 def test_get_song_by_id() -> None:
     # act
     response: Final = get(
-        f"{rest_url}/{ARTIST_ID_ADMIN}/songs/{SONG_ID_ADMIN}",
+        f"{song_rest_url}/{SONG_ID_ADMIN}",
+        params={"artist_id": ARTIST_ID_ADMIN},
         verify=ctx,
     )
 
@@ -69,14 +70,15 @@ def test_get_song_by_id() -> None:
     response_body: Final = response.json()
     assert isinstance(response_body, dict)
     assert response_body.get("id") == SONG_ID_ADMIN
-    assert response_body.get("artist_id") == ARTIST_ID_ADMIN
+    assert ARTIST_ID_ADMIN in response_body.get("artist_ids", [])
 
 
 @mark.rest
 @mark.get_request
 def test_get_songs_by_artist_id() -> None:
     response: Final = get(
-        f"{rest_url}/{ARTIST_ID_ALICE}/songs",
+        song_rest_url,
+        params={"artist_id": ARTIST_ID_ALICE},
         verify=ctx,
     )
     assert response.status_code == HTTPStatus.OK
@@ -93,7 +95,8 @@ def test_get_songs_by_artist_id() -> None:
 @mark.get_request
 def test_get_songs_by_artist_id_not_found() -> None:
     response: Final = get(
-        f"{rest_url}/999999/songs",
+        song_rest_url,
+        params={"artist_id": 999999},
         verify=ctx,
     )
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -104,7 +107,8 @@ def test_get_songs_by_artist_id_not_found() -> None:
 @mark.parametrize("artist_id,song_id", [(999999, 1000), (1000, 999999)])
 def test_get_song_by_id_not_found(artist_id: int, song_id: int) -> None:
     response: Final = get(
-        f"{rest_url}/{artist_id}/songs/{song_id}",
+        f"{song_rest_url}/{song_id}",
+        params={"artist_id": artist_id},
         verify=ctx,
     )
     assert response.status_code == HTTPStatus.NOT_FOUND

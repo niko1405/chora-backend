@@ -1,24 +1,23 @@
 info:
-  name: Song von Artist
+  name: Alle Songs
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: GET
-  url: "{{restArtistsUrl}}/:artistId/songs/:songId"
+  url: "{{restSongsUrl}}?page=0"
   params:
-    - name: artistId
-      value: "1010"
-      type: path
-    - name: songId
-      value: "3010"
-      type: path
+    - name: page
+      value: "0"
+      type: query
 
 runtime:
   assertions:
     - expression: res.status
       operator: eq
       value: "200"
+    - expression: res.body.content
+      operator: isArray
 
 settings:
   encodeUrl: true

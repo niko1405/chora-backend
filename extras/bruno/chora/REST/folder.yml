@@ -8,3 +8,5 @@ request:
   variables:
     - name: restArtistsUrl
       value: "{{baseUrl}}/rest/artists"
+    - name: restSongsUrl
+      value: "{{baseUrl}}/rest/songs"

@@ -9,7 +9,13 @@ from typing import Final
 from httpx import delete, post, put
 from pytest import mark
 
-from tests.integration.common_test import create_artist_payload, ctx, login, rest_url
+from tests.integration.common_test import (
+    create_artist_payload,
+    ctx,
+    login,
+    rest_url,
+    song_rest_url,
+)
 
 
 @mark.rest
@@ -30,11 +36,12 @@ def test_post_song() -> None:
         "genres": ["ROCK", "POP"],
         "erscheinungsdatum": "2024-06-01",
         "dauer": 210,
+        "artist_ids": [artist_id],
     }
 
     # act
     response: Final = post(
-        f"{rest_url}/{artist_id}/songs",
+        song_rest_url,
         json=song_payload,
         headers=headers,
         verify=ctx,
@@ -61,12 +68,13 @@ def test_put_song() -> None:
     auth_headers = {"Authorization": f"Bearer {token}"}
 
     create_song_response: Final = post(
-        f"{rest_url}/{artist_id}/songs",
+        song_rest_url,
         json={
             "titel": "Old Song",
             "genres": ["ROCK"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 190,
+            "artist_ids": [artist_id],
         },
         headers=auth_headers,
         verify=ctx,
@@ -78,12 +86,13 @@ def test_put_song() -> None:
 
     # act
     response: Final = put(
-        f"{rest_url}/{artist_id}/songs/{song_id}",
+        f"{song_rest_url}/{song_id}",
         json={
             "titel": "Updated Song",
             "genres": ["JAZZ"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 222,
+            "artist_ids": [artist_id],
         },
         headers=auth_headers,
         verify=ctx,
@@ -108,12 +117,13 @@ def test_delete_song() -> None:
     auth_headers = {"Authorization": f"Bearer {token}"}
 
     create_song_response: Final = post(
-        f"{rest_url}/{artist_id}/songs",
+        song_rest_url,
         json={
             "titel": "Delete Song",
             "genres": ["METAL"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 199,
+            "artist_ids": [artist_id],
         },
         headers=auth_headers,
         verify=ctx,
@@ -125,7 +135,7 @@ def test_delete_song() -> None:
 
     # act
     response: Final = delete(
-        f"{rest_url}/{artist_id}/songs/{song_id}",
+        f"{song_rest_url}/{song_id}",
         headers=auth_headers,
         verify=ctx,
     )
@@ -141,12 +151,57 @@ def test_post_song_artist_not_found() -> None:
     headers = {"Authorization": f"Bearer {token}"}
 
     response: Final = post(
-        f"{rest_url}/999999/songs",
+        song_rest_url,
         json={
             "titel": "Ghost Song",
             "genres": ["ROCK"],
             "erscheinungsdatum": "2024-01-01",
             "dauer": 200,
+            "artist_ids": [999999],
+        },
+        headers=headers,
+        verify=ctx,
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@mark.rest
+@mark.post_request
+def test_post_song_titel_exists() -> None:
+    token: Final = login()
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response: Final = post(
+        song_rest_url,
+        json={
+            "titel": "Glass Horizon",
+            "genres": ["ROCK"],
+            "erscheinungsdatum": "2024-01-01",
+            "dauer": 200,
+            "artist_ids": [1010],
+        },
+        headers=headers,
+        verify=ctx,
+    )
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+@mark.rest
+@mark.put_request
+def test_put_song_not_found() -> None:
+    token: Final = login()
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response: Final = put(
+        f"{song_rest_url}/999999",
+        json={
+            "titel": "Missing Song",
+            "genres": ["ROCK"],
+            "erscheinungsdatum": "2024-01-01",
+            "dauer": 222,
+            "artist_ids": [1000],
         },
         headers=headers,
         verify=ctx,
@@ -157,23 +212,24 @@ def test_post_song_artist_not_found() -> None:
 
 @mark.rest
 @mark.put_request
-def test_put_song_not_found() -> None:
+def test_put_song_titel_exists() -> None:
     token: Final = login()
     headers = {"Authorization": f"Bearer {token}"}
 
     response: Final = put(
-        f"{rest_url}/1000/songs/999999",
+        f"{song_rest_url}/3020",
         json={
-            "titel": "Missing Song",
+            "titel": "Glass Horizon",
             "genres": ["ROCK"],
             "erscheinungsdatum": "2024-01-01",
-            "dauer": 222,
+            "dauer": 200,
+            "artist_ids": [1010],
         },
         headers=headers,
         verify=ctx,
     )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 @mark.rest
@@ -183,7 +239,7 @@ def test_delete_song_not_found() -> None:
     headers = {"Authorization": f"Bearer {token}"}
 
     response: Final = delete(
-        f"{rest_url}/1000/songs/999999",
+        f"{song_rest_url}/999999",
         headers=headers,
         verify=ctx,
     )

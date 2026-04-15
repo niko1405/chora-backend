@@ -1,0 +1,31 @@
+info:
+  name: Song für Artist anlegen NOTEXIST
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{restSongsUrl}}"
+  body:
+    type: json
+    data: |-
+      {
+        "titel": "Bruno Song NOTEXIST",
+        "genres": ["Jazz"],
+        "erscheinungsdatum": "2024-05-01",
+        "dauer": 190,
+        "artist_ids": [9999]
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "404"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

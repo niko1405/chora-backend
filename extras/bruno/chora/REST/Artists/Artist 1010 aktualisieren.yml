@@ -1,7 +1,7 @@
 info:
-  name: Artist mit ID 1 aktualisieren
+  name: Artist 1010 aktualisieren
   type: http
-  seq: 6
+  seq: 7
 
 http:
   method: PUT
@@ -17,9 +17,9 @@ http:
     type: json
     data: |-
       {
-        "name": "Artist Updated",
+        "name": "Alice Updated",
         "geburtsdatum": "1991-01-01",
-        "email": "artist.updated@example.com",
+        "email": "alice.updated@example.com",
         "username": "alice",
         "vertrag": {
           "startdatum": "2026-01-01",
@@ -28,14 +28,7 @@ http:
           "firma": "Sony",
           "gehalt": 180000.0
         },
-        "songs": [
-          {
-            "titel": "Updated Song",
-            "genres": ["Pop"],
-            "erscheinungsdatum": "2026-04-01",
-            "dauer": 200
-          }
-        ]
+        "songs": []
       }
   auth: inherit
 
@@ -43,7 +36,7 @@ runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "404"
+      value: "204"
 
 settings:
   encodeUrl: true

@@ -5,13 +5,10 @@ info:
 
 http:
   method: GET
-  url: "{{restArtistsUrl}}/:artistId/songs/:songId"
+  url: "{{restSongsUrl}}/:songId"
   params:
-    - name: artistId
-      value: "1000"
-      type: path
     - name: songId
-      value: "3010"
+      value: "99999"
       type: path
 
 runtime:

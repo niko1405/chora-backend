@@ -1,0 +1,35 @@
+info:
+  name: Song aktualisieren NOTFOUND
+  type: http
+  seq: 7
+
+http:
+  method: PUT
+  url: "{{restSongsUrl}}/:songId"
+  params:
+    - name: songId
+      value: "999999"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "titel": "Song Updated",
+        "genres": ["Pop"],
+        "erscheinungsdatum": "2024-06-01",
+        "dauer": 205,
+        "artist_ids": [1]
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "404"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
