@@ -1,0 +1,102 @@
+' Copyright (C) 2023 - present Juergen Zimmermann, Hochschule Karlsruhe
+'
+' This program is free software: you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation, either version 3 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+' Preview durch <Alt>d
+
+@startuml schichtenarchitektur
+
+package chora {
+  package router {
+    [artist_router]
+    [artist_write_router]
+    [song_router]
+    [song_write_router]
+    [auth_router]
+    [health_router]
+    [shutdown_router]
+  }
+
+  package graphql_api {
+    [schema]
+    [graphql_types]
+  }
+
+  package security {
+    [token_service]
+    [user_service]
+    [roles_required]
+    [auth_router]
+  }
+
+  package service {
+    [ArtistService]
+    [ArtistWriteService]
+    [SongService]
+    [SongWriteService]
+    [TokenService]
+    [UserService]
+  }
+
+  package repository {
+    [ArtistRepository]
+    [SongRepository]
+    [session_factory]
+  }
+
+  package entity {
+    [Artist]
+    [Song]
+    [Vertrag]
+    [song_artist]
+  }
+
+  package config {
+    [db]
+    [graphql]
+    [keycloak]
+    [server]
+    [tls]
+    [dev_modus]
+  }
+}
+
+[artist_router] --> [ArtistService]
+[artist_write_router] --> [ArtistWriteService]
+[song_router] --> [SongService]
+[song_write_router] --> [SongWriteService]
+[graphql_types] --> [ArtistWriteService]
+[schema] --> [ArtistService]
+[schema] --> [ArtistWriteService]
+
+[ArtistService] --> [ArtistRepository]
+[ArtistWriteService] --> [ArtistRepository]
+[ArtistWriteService] --> [SongRepository]
+[SongService] --> [SongRepository]
+[SongWriteService] --> [SongRepository]
+[TokenService] --> [keycloak]
+[UserService] --> [keycloak]
+
+[ArtistRepository] --> [session_factory]
+[SongRepository] --> [session_factory]
+[session_factory] --> [db]
+[ArtistRepository] ..> [Artist]
+[SongRepository] ..> [Song]
+[Artist] ..> [song_artist]
+[Song] ..> [song_artist]
+[Artist] ..> [Vertrag]
+
+footer Chora
+
+@enduml

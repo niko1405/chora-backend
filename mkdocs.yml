@@ -1,0 +1,43 @@
+site_name: Chora
+site_description: Dokumentation fuer die FastAPI-Anwendung Chora
+site_dir: site
+docs_dir: docs
+
+theme:
+  name: material
+  language: de
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - src
+          options:
+            show_source: false
+            show_root_heading: true
+            show_root_full_path: false
+            show_category_heading: true
+            members_order: source
+  - build_plantuml:
+      diagram_root: docs/diagramme
+      output_format: svg
+
+nav:
+  - Start: index.md
+  - Hinweise: ReadMe.md
+  - Architektur:
+      - Schichtenarchitektur: schichtenarchitektur.md
+      - Komponentendiagramm: komponentendiagramm.md
+      - ER-Diagramm: er-diagramm.md
+      - Use Cases: use-cases.md
+  - Module:
+      - Paket chora: modules/__init__.md
+      - Konfiguration: modules/config.md
+      - Entity: modules/entity.md
+      - REST: modules/rest.md
+      - GraphQL: modules/graphql.md
+      - Repository: modules/repository.md
+      - Service: modules/service.md
+      - Security: modules/security.md

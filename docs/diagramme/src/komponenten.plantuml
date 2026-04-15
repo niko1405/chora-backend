@@ -1,0 +1,89 @@
+' Copyright (C) 2023 - present Juergen Zimmermann, Hochschule Karlsruhe
+'
+' This program is free software: you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation, either version 3 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+' Preview durch <Alt>d
+
+@startuml komponentendiagramm
+
+left to right direction
+
+actor "REST Client" as rest_client
+actor "GraphQL Client" as graphql_client
+actor "Admin / Betrieb" as admin
+
+node "chora" as app {
+  [FastAPI App]
+  [Artist Router]
+  [Artist Write Router]
+  [Song Router]
+  [Song Write Router]
+  [Auth Router]
+  [Health Router]
+  [Shutdown Router]
+  [Dev Router]
+  [GraphQL Router]
+
+  [ArtistService]
+  [ArtistWriteService]
+  [SongService]
+  [SongWriteService]
+  [TokenService]
+  [UserService]
+
+  [ArtistRepository]
+  [SongRepository]
+  [Session Factory]
+}
+
+database "PostgreSQL" as db
+cloud "Keycloak" as keycloak
+cloud "Prometheus" as prometheus
+
+rest_client --> [Artist Router]
+rest_client --> [Song Router]
+graphql_client --> [GraphQL Router]
+admin --> [Auth Router]
+admin --> [Shutdown Router]
+admin --> [Dev Router]
+
+[Artist Router] --> [ArtistService]
+[Artist Write Router] --> [ArtistWriteService]
+[Song Router] --> [SongService]
+[Song Write Router] --> [SongWriteService]
+[Auth Router] --> [TokenService]
+[Auth Router] --> [UserService]
+[GraphQL Router] --> [ArtistService]
+[GraphQL Router] --> [ArtistWriteService]
+[GraphQL Router] --> [TokenService]
+[Health Router] --> [Session Factory]
+[Shutdown Router] --> [Session Factory]
+[Dev Router] --> [Session Factory]
+
+[ArtistService] --> [ArtistRepository]
+[ArtistWriteService] --> [ArtistRepository]
+[ArtistWriteService] --> [SongRepository]
+[SongService] --> [SongRepository]
+[SongWriteService] --> [SongRepository]
+
+[ArtistRepository] --> [Session Factory]
+[SongRepository] --> [Session Factory]
+[Session Factory] --> db
+[TokenService] --> keycloak
+[UserService] --> keycloak
+[FastAPI App] --> prometheus
+
+footer Chora
+
+@enduml
