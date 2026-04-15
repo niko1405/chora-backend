@@ -1,18 +1,17 @@
 info:
   name: Artist mit ID 1 aktualisieren
   type: http
-  seq: 5
+  seq: 6
 
 http:
   method: PUT
   url: "{{restArtistsUrl}}/:artistId"
-  auth: inherit
   headers:
     - name: If-Match
       value: '"1"'
   params:
     - name: artistId
-      value: "999999"
+      value: "1010"
       type: path
   body:
     type: json
@@ -21,6 +20,7 @@ http:
         "name": "Artist Updated",
         "geburtsdatum": "1991-01-01",
         "email": "artist.updated@example.com",
+        "username": "alice",
         "vertrag": {
           "startdatum": "2026-01-01",
           "enddatum": "2028-12-31",
@@ -37,6 +37,7 @@ http:
           }
         ]
       }
+  auth: inherit
 
 runtime:
   assertions:

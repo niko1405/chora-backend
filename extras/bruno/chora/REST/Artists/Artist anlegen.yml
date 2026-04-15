@@ -1,7 +1,7 @@
 info:
   name: Artist anlegen
   type: http
-  seq: 4
+  seq: 5
 
 http:
   method: POST
@@ -13,6 +13,7 @@ http:
         "name": "Test",
         "geburtsdatum": "1990-01-01",
         "email": "bruno.artist@example.com",
+        "username": "test",
         "vertrag": {
           "startdatum": "2026-01-01",
           "enddatum": "2027-12-31",
@@ -29,6 +30,7 @@ http:
           }
         ]
       }
+  auth: inherit
 
 runtime:
   assertions:

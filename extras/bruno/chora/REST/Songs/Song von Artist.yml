@@ -1,24 +1,24 @@
 info:
-  name: Song 1 von Artist 1 loeschen
+  name: Song von Artist
   type: http
-  seq: 6
+  seq: 2
 
 http:
-  method: DELETE
+  method: GET
   url: "{{restArtistsUrl}}/:artistId/songs/:songId"
   params:
     - name: artistId
-      value: "1"
+      value: "1010"
       type: path
     - name: songId
-      value: "999999"
+      value: "3010"
       type: path
 
 runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "404"
+      value: "200"
 
 settings:
   encodeUrl: true

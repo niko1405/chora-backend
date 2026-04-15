@@ -1,25 +1,26 @@
 info:
   name: Artist mit ID 1 patchen
   type: http
-  seq: 7
+  seq: 8
 
 http:
   method: PATCH
   url: "{{restArtistsUrl}}/:artistId"
-  auth: inherit
   headers:
     - name: If-Match
-      value: '"1"'
+      value: '"2"'
   params:
     - name: artistId
-      value: "999999"
+      value: "1051"
       type: path
   body:
     type: json
     data: |-
       {
-        "email": "artist.patch@example.com"
+        "email": "bruno.echo@acme.de",
+        "username": "teest"
       }
+  auth: inherit
 
 runtime:
   assertions:

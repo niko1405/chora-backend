@@ -1,16 +1,16 @@
 info:
   name: Artist mit ID 1 loeschen
   type: http
-  seq: 8
+  seq: 9
 
 http:
   method: DELETE
   url: "{{restArtistsUrl}}/:artistId"
-  auth: inherit
   params:
     - name: artistId
       value: "999999"
       type: path
+  auth: inherit
 
 runtime:
   assertions:

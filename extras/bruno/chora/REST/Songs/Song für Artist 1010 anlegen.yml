@@ -1,14 +1,14 @@
 info:
-  name: Song fuer Artist 1 anlegen
+  name: Song für Artist 1010 anlegen
   type: http
-  seq: 3
+  seq: 4
 
 http:
   method: POST
   url: "{{restArtistsUrl}}/:artistId/songs"
   params:
     - name: artistId
-      value: "999999"
+      value: "1010"
       type: path
   body:
     type: json
@@ -24,7 +24,7 @@ runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "404"
+      value: "201"
 
 settings:
   encodeUrl: true

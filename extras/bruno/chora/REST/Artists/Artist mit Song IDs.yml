@@ -1,18 +1,17 @@
 info:
   name: Artist mit Song IDs
   type: http
-  seq: 6
+  seq: 7
 
 http:
   method: PUT
   url: "{{restArtistsUrl}}/:artistId"
-  auth: inherit
   headers:
     - name: If-Match
       value: '"1"'
   params:
     - name: artistId
-      value: "1000"
+      value: "1010"
       type: path
   body:
     type: json
@@ -21,6 +20,7 @@ http:
         "name": "Artist Updated",
         "geburtsdatum": "1991-01-01",
         "email": "artist.updated@example.com",
+        "username": "alice",
         "vertrag": {
           "startdatum": "2026-01-01",
           "enddatum": "2028-12-31",
@@ -28,15 +28,9 @@ http:
           "firma": "Sony",
           "gehalt": 180000.0
         },
-        "songs": [
-          {
-            "titel": "Updated Song",
-            "genres": ["Pop"],
-            "erscheinungsdatum": "2026-04-01",
-            "dauer": 200
-          }
-        ]
+        "songs": ["3040", "3050"]
       }
+  auth: inherit
 
 runtime:
   assertions:

@@ -29,6 +29,7 @@ class ArtistUpdateModel(ArtistBaseModel):
                 "name": "OneDirection",
                 "geburtsdatum": "1990-01-01",
                 "email": "onedirection@example.com",
+                "username": "harry",
                 "vertrag": {
                     "startdatum": "2026-01-01",
                     "enddatum": "2028-12-31",
