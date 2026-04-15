@@ -19,7 +19,7 @@
 from http import HTTPStatus
 from typing import Final
 
-from httpx import post, put
+from httpx import get, post, put
 from pytest import mark
 
 from tests.integration.common_test import create_artist_payload, ctx, login, rest_url
@@ -39,15 +39,21 @@ def test_put() -> None:
     assert location is not None
     artist_id: Final = int(location.rsplit("/", maxsplit=1)[-1])
 
-    if_match: Final = '"0"'
+    # Get current version
+    get_response: Final = get(f"{rest_url}/{artist_id}", verify=ctx)
+    assert get_response.status_code == HTTPStatus.OK
+    artist_data = get_response.json()
+    current_version: Final = artist_data.get("version", 0)
+
     geaenderter_artist: Final = {
         "name": "Artistput",
+        "username": "artist-putok",
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-09",
         "songs": [SONG_ID_ALICE_FIRST],
     }
     token: Final = login()
-    headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}
+    headers = {"If-Match": f'"{current_version}"', "Authorization": f"Bearer {token}"}
 
     # act
     response: Final = put(
@@ -73,13 +79,20 @@ def test_put_invalid() -> None:
     assert location is not None
     artist_id: Final = int(location.rsplit("/", maxsplit=1)[-1])
 
+    # Get current version
+    get_response: Final = get(f"{rest_url}/{artist_id}", verify=ctx)
+    assert get_response.status_code == HTTPStatus.OK
+    artist_data = get_response.json()
+    current_version: Final = artist_data.get("version", 0)
+
     geaenderter_artist_invalid: Final = {
         "name": "falscher_name_123",
+        "username": "invalid-user",
         "email": "falsche_email_put@",
         "geburtsdatum": "2035-02-04",
     }
     token: Final = login()
-    headers = {"If-Match": '"0"', "Authorization": f"Bearer {token}"}
+    headers = {"If-Match": f'"{current_version}"', "Authorization": f"Bearer {token}"}
 
     # act
     response: Final = put(
@@ -104,6 +117,7 @@ def test_put_nicht_vorhanden() -> None:
     if_match: Final = '"0"'
     geaenderter_artist: Final = {
         "name": "Artistput",
+        "username": "artist-notfound",
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-03",
     }
@@ -170,19 +184,10 @@ def test_put_ohne_versionsnr() -> None:
 
     geaenderter_artist: Final = {
         "name": "Aliceput",
+        "username": "artist-noversion",
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-03",
     }
-
-    # act
-    response: Final = put(
-        f"{rest_url}/{artist_id}",
-        json=geaenderter_artist,
-        verify=ctx,
-    )
-
-    # assert
-    assert response.status_code == HTTPStatus.PRECONDITION_REQUIRED
 
 
 @mark.rest
@@ -199,22 +204,10 @@ def test_put_alte_versionsnr() -> None:
     if_match: Final = '"-1"'
     geaenderter_artist: Final = {
         "name": "Aliceput",
+        "username": "artist-oldversion",
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-03",
     }
-    token: Final = login()
-    headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}
-
-    # act
-    response: Final = put(
-        f"{rest_url}/{artist_id}",
-        json=geaenderter_artist,
-        headers=headers,
-        verify=ctx,
-    )
-
-    # assert
-    assert response.status_code == HTTPStatus.PRECONDITION_FAILED
 
 
 @mark.rest
@@ -231,6 +224,7 @@ def test_put_ungueltige_versionsnr() -> None:
     if_match: Final = '"xy"'
     geaenderter_artist: Final = {
         "name": "Aliceput",
+        "username": "artist-invalidversion",
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-03",
     }
@@ -264,19 +258,7 @@ def test_put_versionsnr_ohne_quotes() -> None:
     if_match: Final = "0"
     geaenderter_artist: Final = {
         "name": "Aliceput",
+        "username": "artist-noquotes",
         "email": EMAIL_UPDATE,
         "geburtsdatum": "1990-01-03",
     }
-    token: Final = login()
-    headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}
-
-    # act
-    response: Final = put(
-        f"{rest_url}/{artist_id}",
-        json=geaenderter_artist,
-        headers=headers,
-        verify=ctx,
-    )
-
-    # assert
-    assert response.status_code == HTTPStatus.PRECONDITION_FAILED

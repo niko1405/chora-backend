@@ -186,6 +186,7 @@ def test_query_artists_by_name() -> None:
     # arrange
     artist = create_artist_payload(marker="gqlname")
     artist["name"] = "Graph Artist"
+    artist["username"] = "graph-artist"
     create_response: Final = post(rest_url, json=artist, verify=ctx)
     assert create_response.status_code == HTTPStatus.CREATED
 

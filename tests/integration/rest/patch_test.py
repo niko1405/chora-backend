@@ -23,8 +23,15 @@ def test_patch_artist_email() -> None:
     assert location is not None
     artist_id: Final = int(location.rsplit("/", maxsplit=1)[-1])
 
+    # Get current version
+    from httpx import get
+    get_response: Final = get(f"{rest_url}/{artist_id}", verify=ctx)
+    assert get_response.status_code == HTTPStatus.OK
+    artist_data = get_response.json()
+    current_version: Final = artist_data.get("version", 0)
+
     token: Final = login()
-    headers = {"If-Match": '"0"', "Authorization": f"Bearer {token}"}
+    headers = {"If-Match": f'"{current_version}"', "Authorization": f"Bearer {token}"}
     patch_payload = {"email": "artist.patch@acme.de"}
 
     # act
