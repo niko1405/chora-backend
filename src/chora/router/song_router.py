@@ -19,24 +19,13 @@ __all__ = ["song_router"]
 song_router: Final = APIRouter(tags=["Lesen"])
 
 
-@song_router.get("/{artist_id}/songs/{song_id}")
-def get_by_id(
-    artist_id: int,
-    song_id: int,
-    service: Annotated[SongService, Depends(get_song_service)],
-) -> JSONResponse:
-    """Einen Song eines Artists anhand der Song-ID lesen."""
-    song: Final = service.find_by_id(artist_id=artist_id, song_id=song_id)
-    return JSONResponse(content=_song_to_dict(song))
-
-
-@song_router.get("/{artist_id}/songs")
+@song_router.get("")
 def get(
-    artist_id: int,
     request: Request,
     service: Annotated[SongService, Depends(get_song_service)],
+    artist_id: int | None = None,
 ) -> JSONResponse:
-    """Songs eines Artists mit Pagination lesen."""
+    """Songs mit Pagination lesen, optional nach Artist gefiltert."""
     query_params: Final = request.query_params
     page: Final = query_params.get("page")
     size: Final = query_params.get("size")
@@ -45,6 +34,17 @@ def get(
     songs_slice: Final = service.find(artist_id=artist_id, pageable=pageable)
     result: Final = _song_slice_to_page(songs_slice=songs_slice, pageable=pageable)
     return JSONResponse(content=result)
+
+
+@song_router.get("/{song_id}")
+def get_by_id(
+    song_id: int,
+    service: Annotated[SongService, Depends(get_song_service)],
+    artist_id: int | None = None,
+) -> JSONResponse:
+    """Einen Song anhand der Song-ID lesen."""
+    song: Final = service.find_by_id(song_id=song_id, artist_id=artist_id)
+    return JSONResponse(content=_song_to_dict(song))
 
 
 def _song_slice_to_page(

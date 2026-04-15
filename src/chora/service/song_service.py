@@ -14,7 +14,7 @@ __all__ = ["SongService"]
 
 
 class SongService:
-    """Service-Klasse fuer die Leselogik von Songs je Artist."""
+    """Service-Klasse fuer die Leselogik von Songs."""
 
     def __init__(
         self,
@@ -25,10 +25,10 @@ class SongService:
         self.artist_repo = artist_repo
         self.song_repo = song_repo
 
-    def find_by_id(self, artist_id: int, song_id: int) -> SongDTO:
-        """Song eines Artists anhand der Song-ID lesen."""
+    def find_by_id(self, song_id: int, artist_id: int | None = None) -> SongDTO:
+        """Song anhand der Song-ID lesen, optional gefiltert nach Artist."""
         with Session() as session:
-            if (
+            if artist_id is not None and (
                 self.artist_repo.find_by_id(
                     artist_id=artist_id,
                     session=session,
@@ -49,10 +49,10 @@ class SongService:
             session.commit()
             return song_dto
 
-    def find(self, artist_id: int, pageable: Pageable) -> Slice[SongDTO]:
-        """Songs eines Artists mit Pagination lesen."""
+    def find(self, artist_id: int | None, pageable: Pageable) -> Slice[SongDTO]:
+        """Songs mit Pagination lesen, optional nach Artist gefiltert."""
         with Session() as session:
-            if (
+            if artist_id is not None and (
                 self.artist_repo.find_by_id(
                     artist_id=artist_id,
                     session=session,
@@ -66,7 +66,7 @@ class SongService:
                 pageable=pageable,
                 session=session,
             )
-            if len(songs_slice.content) == 0:
+            if artist_id is not None and len(songs_slice.content) == 0:
                 raise NotFoundError(artist_id=artist_id)
 
             song_dtos: Final = tuple(SongDTO(song=song) for song in songs_slice.content)

@@ -29,8 +29,8 @@ class SongDTO:
     genres: list[str]
     """Genres des Songs als Liste von Namen."""
 
-    artist_id: int
-    """ID des zugehörigen Artists."""
+    artist_ids: list[int]
+    """IDs der zugehörigen Artists."""
 
     def __init__(self, song: Song) -> None:
         """Initialisiert das SongDTO aus einem Song-Objekt.
@@ -43,4 +43,4 @@ class SongDTO:
         self.erscheinungsdatum = song.erscheinungsdatum.isoformat()
         self.dauer = song.dauer
         self.genres = song.genres_json if song.genres_json is not None else []
-        self.artist_id = song.artist_id
+        self.artist_ids = song.artist_ids

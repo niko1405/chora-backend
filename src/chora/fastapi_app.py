@@ -44,6 +44,7 @@ from chora.service.exceptions import (
     EmailExistsError,
     ForbiddenError,
     NotFoundError,
+    SongTitleExistsError,
     UsernameExistsError,
     VersionOutdatedError,
 )
@@ -113,8 +114,8 @@ async def log_response_time(
 # --------------------------------------------------------------------------------------
 app.include_router(artist_router, prefix="/rest/artists")
 app.include_router(artist_write_router, prefix="/rest/artists")
-app.include_router(song_router, prefix="/rest/artists")
-app.include_router(song_write_router, prefix="/rest/artists")
+app.include_router(song_router, prefix="/rest/songs")
+app.include_router(song_write_router, prefix="/rest/songs")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(health_router, prefix="/health")
 app.include_router(shutdown_router, prefix="/admin")
@@ -232,6 +233,18 @@ def username_exists_error_handler(
     :return: Response mit Statuscode 422
     :rtype: Response
     """
+    return create_problem_details(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail=str(err),
+    )
+
+
+@app.exception_handler(SongTitleExistsError)
+def song_title_exists_error_handler(
+    _request: Request,
+    err: SongTitleExistsError,
+) -> Response:
+    """Exception-Handling für SongTitleExistsError."""
     return create_problem_details(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         detail=str(err),

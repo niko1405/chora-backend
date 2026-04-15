@@ -16,12 +16,14 @@
 -- https://www.postgresql.org/docs/current/sql-dropindex.html
 DROP INDEX IF EXISTS
     artist_name_idx,
-    song_artist_id_idx,
+    song_artist_song_id_idx,
+    song_artist_artist_id_idx,
     song_titel_idx,
     vertrag_artist_id_idx;
 
 -- https://www.postgresql.org/docs/current/sql-droptable.html
 DROP TABLE IF EXISTS
     vertrag,
+    song_artist,
     song,
     artist;

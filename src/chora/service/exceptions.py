@@ -6,6 +6,7 @@ __all__ = [
     "EmailExistsError",
     "ForbiddenError",
     "NotFoundError",
+    "SongTitleExistsError",
     "UsernameExistsError",
     "VersionOutdatedError",
 ]
@@ -59,6 +60,18 @@ class UsernameExistsError(Exception):
         """
         super().__init__(f"Der Benutzername '{username}' existiert bereits.")
         self.username = username
+
+
+class SongTitleExistsError(Exception):
+    """Exception, wenn der Songtitel bereits existiert."""
+
+    def __init__(self, titel: str) -> None:
+        """Initialisiert die Exception mit dem Songtitel.
+
+        :param titel: Der Songtitel, der bereits existiert
+        """
+        super().__init__(f"Der Songtitel '{titel}' existiert bereits.")
+        self.titel = titel
 
 
 class VersionOutdatedError(Exception):

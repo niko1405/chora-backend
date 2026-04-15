@@ -24,11 +24,12 @@ from typing import Final
 
 from loguru import logger
 from sqlalchemy import Connection, create_engine, text
+from sqlalchemy.exc import DataError
 
 from chora.config.config import resources_path
 from chora.config.db import (
     db_connect_args,
-    db_dialect,
+    db_dialect as _db_dialect,
     db_log_statements,
     db_url_admin,
 )
@@ -59,7 +60,7 @@ class DbPopulateService:
                 connect_args=db_connect_args,
                 echo=db_log_statements,
             )
-            if db_dialect == "postgresql"
+            if _db_dialect == "postgresql"
             else create_engine(db_url_admin, echo=db_log_statements)
         )
 
@@ -72,8 +73,7 @@ class DbPopulateService:
         logger.warning(">>> Die DB wird neu geladen: {} <<<", engine.url)
         connection: Connection
         with engine.connect() as connection:
-            db_dialect: Final = connection.dialect.name
-            dialect_path: Final = _db_traversable / db_dialect
+            dialect_path: Final = _db_traversable / connection.dialect.name
             with Path(str(dialect_path / "drop.sql")).open(encoding=utf8) as drop_sql:
                 zeilen_drop: Final = self._remove_comment(drop_sql.readlines())
                 drop_statements: Final = self._build_sql_statements(zeilen_drop)
@@ -113,7 +113,7 @@ class DbPopulateService:
 
     def _load_csv_files(self) -> None:
         logger.debug("begin")
-        tabellen: Final = ["artist", "vertrag", "song"]
+        tabellen: Final = ["artist", "vertrag"]
         csv_path: Final = "/init/chora/csv"
         # siehe extras/compose/postgres/compose.init.yml
         with self.engine_admin.connect() as connection:
@@ -126,7 +126,85 @@ class DbPopulateService:
                 )
                 self._sync_identity_sequence(tabelle=tabelle, connection=connection)
                 connection.commit()
+            song_from_legacy = self._load_song_csv(
+                csv_path=csv_path,
+                connection=connection,
+            )
+            if not song_from_legacy:
+                self._load_csv_file(
+                    tabelle="song_artist",
+                    csv_path=csv_path,
+                    connection=connection,
+                )
+            connection.commit()
         self.engine_admin.dispose()
+
+    def _load_song_csv(self, csv_path: str, connection: Connection) -> bool:
+        """Song-CSV laden. Rückgabewert: `True`, falls Legacy-Format verwendet wurde."""
+        try:
+            self._load_csv_file(
+                tabelle="song",
+                csv_path=csv_path,
+                connection=connection,
+                columns=["id", "titel", "erscheinungsdatum", "dauer", "genres"],
+            )
+            self._sync_identity_sequence(tabelle="song", connection=connection)
+            connection.commit()
+            return False
+        except DataError as ex:
+            # Legacy-CSV enthält zusätzlich `artist_id`.
+            if "extra data after last expected column" not in str(ex):
+                raise
+            connection.rollback()
+
+        self._load_legacy_song_csv(csv_path=csv_path, connection=connection)
+        self._sync_identity_sequence(tabelle="song", connection=connection)
+        connection.commit()
+        return True
+
+    def _load_legacy_song_csv(self, csv_path: str, connection: Connection) -> None:
+        """Legacy-Song-CSV mit `artist_id` laden und in `song_artist` aufteilen."""
+        logger.warning("Legacy song.csv mit artist_id erkannt: Join-Tabelle wird daraus befüllt")
+        connection.execute(
+            text(
+                """
+                CREATE TEMP TABLE song_legacy_import (
+                    id INTEGER,
+                    titel TEXT,
+                    erscheinungsdatum DATE,
+                    dauer INTEGER,
+                    genres JSON,
+                    artist_id INTEGER
+                ) ON COMMIT DROP
+                """
+            )
+        )
+        self._load_csv_file(
+            tabelle="song_legacy_import",
+            csv_path=csv_path,
+            connection=connection,
+            csv_filename="song",
+        )
+        connection.execute(
+            text(
+                """
+                INSERT INTO song (id, titel, erscheinungsdatum, dauer, genres)
+                OVERRIDING SYSTEM VALUE
+                SELECT id, titel, erscheinungsdatum, dauer, genres
+                FROM song_legacy_import
+                """
+            )
+        )
+        connection.execute(
+            text(
+                """
+                INSERT INTO song_artist (song_id, artist_id)
+                SELECT id, artist_id
+                FROM song_legacy_import
+                WHERE artist_id IS NOT NULL
+                """
+            )
+        )
 
     # Alternative zu COPY (PostgreSQL): pandas.load_csv() angeblich 5-7x langsamer
     # https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
@@ -135,14 +213,21 @@ class DbPopulateService:
     # + Apache Arrow als effizientes Speicherformat
     # https://docs.pola.rs/api/python/stable/reference/api/polars.read_csv.html
     def _load_csv_file(
-        self, tabelle: str, csv_path: str, connection: Connection
+        self,
+        tabelle: str,
+        csv_path: str,
+        connection: Connection,
+        columns: list[str] | None = None,
+        csv_filename: str | None = None,
     ) -> None:
         logger.debug("tabelle={}", tabelle)
-        copy_cmd: Final = Template(
-            "COPY ${TABELLE} FROM '"
-            + csv_path
-            + "/${TABELLE}.csv' (FORMAT csv, QUOTE '\"', DELIMITER ';', HEADER true);",
-        ).substitute(TABELLE=tabelle)
+        target_columns = f" ({', '.join(columns)})" if columns is not None else ""
+        filename = csv_filename if csv_filename is not None else tabelle
+        copy_cmd: Final = (
+            f"COPY {tabelle}{target_columns} FROM "
+            + f"'{csv_path}/{filename}.csv' "
+            + "(FORMAT csv, QUOTE '\"', DELIMITER ';', HEADER true);"
+        )
         connection.execute(text(copy_cmd))
 
     def _sync_identity_sequence(self, tabelle: str, connection: Connection) -> None:

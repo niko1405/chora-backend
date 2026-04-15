@@ -1,11 +1,13 @@
 """Entity-Klasse für Songs."""
 
+from __future__ import annotations
+
 from dataclasses import InitVar
 from datetime import date
 from typing import TYPE_CHECKING
 
 from loguru import logger
-from sqlalchemy import JSON, ForeignKey, Identity
+from sqlalchemy import JSON, Column, ForeignKey, Identity, Integer, Table
 from sqlalchemy.orm import Mapped, mapped_column, reconstructor, relationship
 
 from chora.entity.base import Base
@@ -13,6 +15,26 @@ from chora.entity.genre import Genre
 
 if TYPE_CHECKING:
     from chora.entity.artist import Artist
+
+
+song_artist = Table(
+    "song_artist",
+    Base.metadata,
+    Column(
+        "song_id",
+        Integer,
+        ForeignKey("song.id", ondelete="CASCADE"),
+        primary_key=True,
+        nullable=False,
+    ),
+    Column(
+        "artist_id",
+        Integer,
+        ForeignKey("artist.id", ondelete="CASCADE"),
+        primary_key=True,
+        nullable=False,
+    ),
+)
 
 
 class Song(Base):
@@ -38,13 +60,11 @@ class Song(Base):
     genres: InitVar[list[Genre] | None]
     """Die Genres des Songs als Liste von Genre-Enum-Werten"""
 
-    artist_id: Mapped[int] = mapped_column(ForeignKey(column="artist.id"))
-    """Id des zugehörigen Artisten als Fremdschlüssel inder DB-Tabelle."""
-
-    artist: Mapped["Artist"] = relationship(
+    artists: Mapped[list[Artist]] = relationship(
         back_populates="songs",
+        secondary=song_artist,
     )
-    """Das zugehörige Artist-Objekt"""
+    """Die zugehörigen Artist-Objekte."""
 
     genres_json: Mapped[list[str] | None] = mapped_column(
         JSON,
@@ -64,9 +84,7 @@ class Song(Base):
         logger.debug("genres={}", genres)
         logger.debug("self={}", self)
         self.genres_json = (
-            [genre_enum.name for genre_enum in genres]
-            if genres is not None
-            else None
+            [genre_enum.name for genre_enum in genres] if genres is not None else None
         )
         logger.debug("self.genres_json={}", self.genres_json)
 
@@ -82,6 +100,17 @@ class Song(Base):
             "genres={}",
             self.genres,  # pyright: ignore[reportAttributeAccessIssue]
         )
+
+    @property
+    def artist_ids(self) -> list[int]:
+        """Die IDs aller zugehörigen Artists."""
+        return [artist.id for artist in self.artists if artist.id is not None]
+
+    @property
+    def artist_id(self) -> int | None:
+        """Kompatibilitätszugriff auf die erste zugehörige Artist-ID."""
+        artist_ids = self.artist_ids
+        return artist_ids[0] if len(artist_ids) > 0 else None
 
     def __repr__(self) -> str:
         """Ausgabe der Songs als String ohne die Artistdaten."""

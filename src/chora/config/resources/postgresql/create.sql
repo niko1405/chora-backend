@@ -23,12 +23,19 @@ CREATE TABLE IF NOT EXISTS song (
     titel       TEXT NOT NULL,
     erscheinungsdatum DATE NOT NULL CHECK (erscheinungsdatum <= current_date),
     dauer       INTEGER NOT NULL CHECK (dauer > 0),
-    genres      JSON,
-    artist_id   INTEGER NOT NULL REFERENCES artist ON DELETE CASCADE
+    genres      JSON
 );
 
-CREATE INDEX IF NOT EXISTS song_artist_id_idx ON song(artist_id);
 CREATE INDEX IF NOT EXISTS song_titel_idx ON song(titel);
+
+CREATE TABLE IF NOT EXISTS song_artist (
+    song_id     INTEGER NOT NULL REFERENCES song ON DELETE CASCADE,
+    artist_id   INTEGER NOT NULL REFERENCES artist ON DELETE CASCADE,
+    PRIMARY KEY (song_id, artist_id)
+);
+
+CREATE INDEX IF NOT EXISTS song_artist_song_id_idx ON song_artist(song_id);
+CREATE INDEX IF NOT EXISTS song_artist_artist_id_idx ON song_artist(artist_id);
 
 CREATE TABLE IF NOT EXISTS vertrag (
     id          INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1000) PRIMARY KEY,

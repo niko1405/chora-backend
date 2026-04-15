@@ -3,8 +3,9 @@
 from typing import Final
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
+from chora.entity.artist import Artist
 from chora.entity.song import Song
 from chora.repository.pageable import Pageable
 from chora.repository.slice import Slice
@@ -18,36 +19,34 @@ class SongRepository:
     def find_by_id(
         self,
         song_id: int | None,
-        artist_id: int,
+        artist_id: int | None,
         session: Session,
     ) -> Song | None:
-        """Song anhand der ID und Artist-ID suchen."""
+        """Song anhand der ID und optionaler Artist-ID suchen."""
         if song_id is None:
             return None
 
-        statement: Final = select(Song).where(
+        statement = select(Song).options(joinedload(Song.artists)).where(
             Song.id == song_id,
-            Song.artist_id == artist_id,
         )
-        return session.scalar(statement)
+        if artist_id is not None:
+            statement = statement.where(Song.artists.any(Artist.id == artist_id))
+        return session.scalars(statement).unique().one_or_none()
 
     def find(
         self,
-        artist_id: int,
+        artist_id: int | None,
         pageable: Pageable,
         session: Session,
     ) -> Slice[Song]:
-        """Songs eines Artists mit Pagination suchen."""
+        """Songs mit Pagination suchen, optional nach Artist gefiltert."""
         offset = pageable.number * pageable.size
-        statement: Final = (
-            select(Song)
-            .where(Song.artist_id == artist_id)
-            .limit(pageable.size)
-            .offset(offset)
-            if pageable.size != 0
-            else select(Song).where(Song.artist_id == artist_id)
-        )
-        songs = tuple(session.scalars(statement).all())
+        statement = select(Song).options(joinedload(Song.artists))
+        if artist_id is not None:
+            statement = statement.where(Song.artists.any(Artist.id == artist_id))
+        if pageable.size != 0:
+            statement = statement.limit(pageable.size).offset(offset)
+        songs = tuple(session.scalars(statement).unique().all())
         total_elements = self._count_rows(artist_id=artist_id, session=session)
         return Slice(content=songs, total_elements=total_elements)
 
@@ -55,8 +54,15 @@ class SongRepository:
         """Songs anhand einer ID-Liste suchen."""
         if len(song_ids) == 0:
             return []
-        statement: Final = select(Song).where(Song.id.in_(song_ids))
-        return list(session.scalars(statement).all())
+        statement: Final = select(Song).options(joinedload(Song.artists)).where(
+            Song.id.in_(song_ids)
+        )
+        return list(session.scalars(statement).unique().all())
+
+    def find_by_titel(self, titel: str, session: Session) -> Song | None:
+        """Song anhand des Titels suchen."""
+        statement: Final = select(Song).where(Song.titel == titel)
+        return session.scalar(statement)
 
     def create(self, song: Song, session: Session) -> Song:
         """Einen Song anlegen."""
@@ -74,6 +80,8 @@ class SongRepository:
         session.delete(song)
         session.flush()
 
-    def _count_rows(self, artist_id: int, session: Session) -> int:
-        statement: Final = select(Song.id).where(Song.artist_id == artist_id)
+    def _count_rows(self, artist_id: int | None, session: Session) -> int:
+        statement = select(Song.id)
+        if artist_id is not None:
+            statement = statement.where(Song.artists.any(Artist.id == artist_id))
         return len(session.scalars(statement).all())

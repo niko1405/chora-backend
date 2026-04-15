@@ -7,6 +7,7 @@ from chora.service.exceptions import (
     EmailExistsError,
     ForbiddenError,
     NotFoundError,
+    SongTitleExistsError,
     UsernameExistsError,
     VersionOutdatedError,
 )
@@ -22,6 +23,7 @@ __all__ = [
     "ForbiddenError",
     "NotFoundError",
     "SongDTO",
+    "SongTitleExistsError",
     "UsernameExistsError",
     "VersionOutdatedError",
     "VertragDTO",
