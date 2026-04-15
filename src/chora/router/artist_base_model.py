@@ -17,12 +17,22 @@ class ArtistBaseModel(BaseModel):
     name: Annotated[
         str,
         StringConstraints(
-            pattern=r"^[a-zA-Z\s]+$",
+            pattern=r"^[a-zA-Z\-\s]+$",
             min_length=1,
             max_length=100,
         ),
     ]
     """Der Name des Artisten."""
+
+    username: Annotated[
+        str,
+        StringConstraints(
+            pattern=r"^[a-zA-Z\-\s]+$",
+            min_length=1,
+            max_length=100,
+        ),
+    ]
+    """Der Nutzername des Artisten."""
 
     geburtsdatum: date
     """Das Geburtsdatum."""

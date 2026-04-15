@@ -95,7 +95,7 @@ class Query:
         pageable: Final = Pageable.create(size=str(0))
         try:
             artists_dto: Final = _service.find(
-                queryparams=suchparameter_filtered, pageable=pageable
+                suchparameter=suchparameter_filtered, pageable=pageable
             )
         except NotFoundError:
             return []

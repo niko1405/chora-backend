@@ -4,16 +4,15 @@ from dataclasses import asdict
 from typing import Annotated, Any, Final
 
 from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from chora.entity.artist import Artist
 from chora.repository.pageable import Pageable
 from chora.repository.slice import Slice
 from chora.router.constants import ETAG, IF_NONE_MATCH, IF_NONE_MATCH_MIN_LEN
 from chora.router.dependencies import get_service
 from chora.router.page import Page
-from chora.security.user import User
 from chora.service.artist_dto import ArtistDTO
 from chora.service.artist_service import ArtistService
 
@@ -44,10 +43,9 @@ def get_by_id(
     :return: Eine HTTP-Antwort mit den Daten des angeforderten Künstlers oder einem Fehlerstatus.
     :rtype: Response
     """  # noqa: E501
-    user: Final[User] = request.state.current_user
-    logger.debug("artist_id={}, user={}", artist_id, user)
+    logger.debug("artist_id={}", artist_id)
 
-    artist: Final = service.find_by_id(artist_id=artist_id, user=user)
+    artist: Final = service.find_by_id(artist_id=artist_id)
     logger.debug("{}", artist)
 
     if_none_match: Final = request.headers.get(IF_NONE_MATCH)
@@ -67,7 +65,7 @@ def get_by_id(
                 logger.debug("invalid version={}", version)
 
     return JSONResponse(
-        content=_artist_to_dict(artist),
+        content=jsonable_encoder(_artist_to_dict(artist)),
         headers={ETAG: f'"{artist.version}"'},
     )
 
@@ -109,7 +107,7 @@ def get(
 
     result: Final = _artist_slice_to_page(artist_slice, pageable)
     logger.debug(log_str, result)
-    return JSONResponse(content=result)
+    return JSONResponse(content=jsonable_encoder(result))
 
 
 def _artist_slice_to_page(
@@ -137,15 +135,14 @@ def _artist_slice_to_page(
     return asdict(obj=page)
 
 
-def _artist_to_dict(artist: Artist) -> dict[str, Any]:
-    """Konvertiert ein Artist-Objekt in ein Dictionary für die JSON-Antwort.
+def _artist_to_dict(artist: ArtistDTO) -> dict[str, Any]:
+    """Konvertiert ein ArtistDTO in ein Dictionary für die JSON-Antwort.
 
-    :param artist: Das Artist-Objekt, das konvertiert werden soll.
-    :type artist: Artist
+    :param artist: Das ArtistDTO-Objekt, das konvertiert werden soll.
+    :type artist: ArtistDTO
     :return: Ein Dictionary mit den Daten des Künstlers.
     :rtype: dict[str, Any]
     """
     artist_dict: Final = asdict(obj=artist)
     artist_dict.pop("version")
-    artist_dict.update({"geburtsdatum": artist.geburtsdatum.isoformat()})
     return artist_dict

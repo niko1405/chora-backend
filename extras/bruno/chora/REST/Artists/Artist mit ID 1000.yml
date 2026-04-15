@@ -1,7 +1,7 @@
 info:
-  name: Artist mit ID 1
+  name: Artist mit ID 1000
   type: http
-  seq: 2
+  seq: 3
 
 http:
   method: GET
@@ -11,7 +11,7 @@ http:
       value: application/json
   params:
     - name: artistId
-      value: "1"
+      value: "1000"
       type: path
 
 runtime:
@@ -21,7 +21,7 @@ runtime:
       value: "200"
     - expression: res.body.id
       operator: eq
-      value: "1"
+      value: "1000"
 
 settings:
   encodeUrl: true

@@ -1,11 +1,12 @@
 info:
   name: Artist mit ID 1 patchen
   type: http
-  seq: 5
+  seq: 7
 
 http:
   method: PATCH
   url: "{{restArtistsUrl}}/:artistId"
+  auth: inherit
   headers:
     - name: If-Match
       value: '"1"'

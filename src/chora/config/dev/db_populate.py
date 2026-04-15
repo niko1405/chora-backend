@@ -124,6 +124,7 @@ class DbPopulateService:
                     csv_path=csv_path,
                     connection=connection,
                 )
+                self._sync_identity_sequence(tabelle=tabelle, connection=connection)
                 connection.commit()
         self.engine_admin.dispose()
 
@@ -143,6 +144,17 @@ class DbPopulateService:
             + "/${TABELLE}.csv' (FORMAT csv, QUOTE '\"', DELIMITER ';', HEADER true);",
         ).substitute(TABELLE=tabelle)
         connection.execute(text(copy_cmd))
+
+    def _sync_identity_sequence(self, tabelle: str, connection: Connection) -> None:
+        """Setzt die ID-Sequence nach CSV-Import auf den aktuell hoechsten Wert."""
+        logger.debug("Sequence-Abgleich fuer Tabelle {}", tabelle)
+        setval_cmd: Final = Template(
+            "SELECT setval(" 
+            "pg_get_serial_sequence('chora.${TABELLE}', 'id'), "
+            "COALESCE((SELECT MAX(id) FROM ${TABELLE}), 999), "
+            "true);"
+        ).substitute(TABELLE=tabelle)
+        connection.execute(text(setval_cmd))
 
 
 def get_db_populate_service() -> DbPopulateService:

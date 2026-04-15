@@ -99,17 +99,29 @@ class TokenService:
         :raises AuthorizationError: Falls keine User-Daten extrahiert werden können
         """
         try:
-            token_decoded: Final = self.keycloak.decode_token(token=token)
-        except (JWException) as err:
-            # Oberklasse von InvalidJWSObject, InvalidJWSSignature, JWKeyNotFound
-            # Ungueltiger Token, der nicht decodiert werden kann
-            raise AuthorizationError from err
+            token_decoded: dict[str, Any] = self.keycloak.decode_token(token=token)
+        except JWException as err:
+            logger.debug("decode_token fehlgeschlagen: {}", err)
+            try:
+                # Token-Gueltigkeit serverseitig pruefen, falls lokale JWT-Validierung
+                # (z. B. wegen Schluessel-/Audience-Differenzen) fehlschlaegt.
+                self.keycloak.userinfo(token=token)
+                token_decoded = self.keycloak.decode_token(
+                    token=token,
+                    options={"verify_signature": False, "verify_aud": False},
+                )
+            except Exception as fallback_err:
+                # Oberklasse von InvalidJWSObject, InvalidJWSSignature, JWKeyNotFound
+                # sowie Fehler bei userinfo/introspection.
+                raise AuthorizationError from fallback_err
 
         logger.debug("token_decoded={}", token_decoded)
-        username: Final[str] = token_decoded["preferred_username"]
-        email: Final[str] = token_decoded["email"]
-        nachname: Final[str] = token_decoded["family_name"]
-        vorname: Final[str] = token_decoded["given_name"]
+        username: Final[str] = str(token_decoded.get("preferred_username", ""))
+        email: Final[str] = str(token_decoded.get("email", ""))
+        nachname: Final[str] = str(token_decoded.get("family_name", ""))
+        vorname: Final[str] = str(token_decoded.get("given_name", ""))
+        if not username:
+            raise AuthorizationError
         roles = self.get_roles_from_token(token_decoded)
 
         user = User(
@@ -148,9 +160,26 @@ class TokenService:
             token_decoded = token
         logger.debug("token_decoded={}", token_decoded)
 
-        roles: Final[str] = token_decoded["resource_access"][self.keycloak.client_id][
-            "roles"
+        roles_raw: list[str] = []
+
+        resource_access = token_decoded.get("resource_access", {})
+        if isinstance(resource_access, Mapping):
+            client_access = resource_access.get(self.keycloak.client_id, {})
+            if isinstance(client_access, Mapping):
+                client_roles = client_access.get("roles", [])
+                if isinstance(client_roles, list):
+                    roles_raw.extend(str(role) for role in client_roles)
+
+        realm_access = token_decoded.get("realm_access", {})
+        if isinstance(realm_access, Mapping):
+            realm_roles = realm_access.get("roles", [])
+            if isinstance(realm_roles, list):
+                roles_raw.extend(str(role) for role in realm_roles)
+
+        roles_enum: Final = [
+            Role[role.upper()]
+            for role in roles_raw
+            if isinstance(role, str) and role.upper() in Role.__members__
         ]
-        roles_enum: Final = [Role[role.upper()] for role in roles]
         logger.debug("roles_enum={}", roles_enum)
         return roles_enum

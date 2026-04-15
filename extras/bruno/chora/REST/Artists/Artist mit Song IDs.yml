@@ -1,7 +1,7 @@
 info:
-  name: Artist mit ID 1 aktualisieren
+  name: Artist mit Song IDs
   type: http
-  seq: 5
+  seq: 6
 
 http:
   method: PUT
@@ -12,7 +12,7 @@ http:
       value: '"1"'
   params:
     - name: artistId
-      value: "999999"
+      value: "1000"
       type: path
   body:
     type: json

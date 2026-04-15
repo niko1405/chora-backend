@@ -27,11 +27,11 @@ class ArtistService:
         """
         self.repo: ArtistRepository = repo
 
-    def find_by_id(self, artist_id: int, user: User) -> ArtistDTO:
+    def find_by_id(self, artist_id: int, user: User | None = None) -> ArtistDTO:
         """Suche mit der Künstler-ID.
 
         :param artist_id: ID für die Suche
-        :param user: User aus dem Token
+        :param user: Optionaler User aus dem Token
         :return: Der gefundene Künstler
         :rtype: ArtistDTO
         :raises NotFoundError: Falls kein Künstler gefunden
@@ -40,23 +40,27 @@ class ArtistService:
         logger.debug("artist_id={}, user={}", artist_id, user)
 
         with Session() as session:
-            user_is_admin: Final = Role.ADMIN in user.roles
+            user_is_admin: Final = user is not None and Role.ADMIN in user.roles
 
             if (
                 artist := self.repo.find_by_id(artist_id=artist_id, session=session)
             ) is None:
-                if user_is_admin:
-                    message: Final = f"Kein Künstler mit der ID {artist_id}"
-                    logger.debug("NotFoundError: {}", message)
-                    # "Throw Exceptions Instead of Returning Errors"
-                    raise NotFoundError(artist_id=artist_id)
-                logger.debug(
-                    "Keine Berechtigung für die Suche nach Künstler mit ID {}",
-                    artist_id
-                )
-                raise ForbiddenError
+                if user is not None and not user_is_admin:
+                    logger.debug(
+                        "Keine Berechtigung für die Suche nach Künstler mit ID {}",
+                        artist_id,
+                    )
+                    raise ForbiddenError
+                message: Final = f"Kein Künstler mit der ID {artist_id}"
+                logger.debug("NotFoundError: {}", message)
+                # "Throw Exceptions Instead of Returning Errors"
+                raise NotFoundError(artist_id=artist_id)
 
-            if artist.username != user.username and not user_is_admin:
+            if (
+                user is not None
+                and artist.username != user.username
+                and not user_is_admin
+            ):
                 logger.debug(
                     "artist.username={}, user.username={}, user.roles={}",
                     artist.username,
@@ -73,7 +77,7 @@ class ArtistService:
 
     def find(
             self,
-            queryparams: Mapping[str, str],
+            suchparameter: Mapping[str, str],
             pageable: Pageable
     ) -> Slice[ArtistDTO]:
         """Suche mit optionalen Query-Parametern und Pagination.
@@ -83,17 +87,17 @@ class ArtistService:
         :return: Slice mit den gefundenen Künstlern als DTOs
         :rtype: Slice[ArtistDTO]
         """
-        logger.debug("queryparams={}, pageable={}", queryparams, pageable)
+        logger.debug("queryparams={}, pageable={}", suchparameter, pageable)
 
         with Session() as session:
             artists_slice: Final = self.repo.find(
-                queryparams=queryparams,
+                suchparameter=suchparameter,
                 pageable=pageable,
                 session=session,
             )
 
             if len(artists_slice.content) == 0:
-                raise NotFoundError(suchparameter=queryparams)
+                raise NotFoundError(suchparameter=suchparameter)
 
             artist_dtos: Final = tuple(
                 ArtistDTO(artist=artist) for artist in artists_slice.content

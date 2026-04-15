@@ -65,7 +65,7 @@ class Artist(Base):
     )
     """Der Zeitstempel vom letzen UPDATE in der DB-Tabelle."""
 
-    __mapper_args__ = {"version_id_col": "version"}
+    __mapper_args__ = {"version_id_col": version}
 
     def set(self, artist: Self) -> None:
         """Primitive Attributwerte überschreiben, z.B. vor DB-Update.
