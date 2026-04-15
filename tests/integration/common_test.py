@@ -45,6 +45,17 @@ __all__ = [
     "timeout",
     "token_path",
     "username_admin",
+    "ARTIST_ADMIN_ID",
+    "ARTIST_ALICE_ID",
+    "ARTIST_ALICE_EMAIL",
+    "ARTIST_BRUNO_ID",
+    "ARTIST_BRUNO_EMAIL",
+    "ARTIST_CLEO_ID",
+    "ARTIST_CLEO_EMAIL",
+    "SONG_ID_1",
+    "SONG_ID_2",
+    "SONG_ID_3",
+    "SONG_ID_4",
 ]
 
 schema: Final = "https"
@@ -148,19 +159,40 @@ def keycloak_populate() -> None:
     assert response.status_code == HTTPStatus.OK
 
 
+# Test-Daten aus den CSV-Dateien (db_populate)
+ARTIST_ADMIN_ID: Final = 1000
+ARTIST_ALICE_ID: Final = 1010
+ARTIST_ALICE_EMAIL: Final = "alice.neon@acme.de"
+ARTIST_BRUNO_ID: Final = 1020
+ARTIST_BRUNO_EMAIL: Final = "bruno.echo@acme.de"
+ARTIST_CLEO_ID: Final = 1030
+ARTIST_CLEO_EMAIL: Final = "cleo.drift@acme.de"
+
+SONG_ID_1: Final = 3000  # Control Room
+SONG_ID_2: Final = 3010  # Glass Horizon
+SONG_ID_3: Final = 3020  # Night Transit
+SONG_ID_4: Final = 3030  # Signal Bloom
+
+
 def create_artist_payload(*, marker: str | None = None) -> dict[str, Any]:
-    """Erzeuge gueltige Testdaten fuer einen Artist-POST-Request."""
-    suffix: Final = marker if marker is not None else uuid4().hex[:8]
+    """Erzeuge gueltige Testdaten fuer einen neuen Artist (für POST/DELETE Tests)."""
+    # Nutze marker als String oder generiere einen mit nur Buchstaben
+    if marker is None:
+        import random
+        import string
+        # Generiere mit nur Buchstaben (kein Hex), um das Regex-Pattern zu erfüllen
+        marker = ''.join(random.choices(string.ascii_lowercase, k=6))
+    
     return {
-        "name": f"Artist{suffix}",
-        "email": f"artist.{suffix}@acme.de",
+        "name": f"TestArtist {marker.capitalize()}",
+        "email": f"test.{marker}@acme.de",
         "geburtsdatum": "1995-01-01",
-        "username": f"artist-{suffix}",
+        "username": f"test-{marker}",
         "vertrag": {
             "startdatum": "2020-01-01",
             "enddatum": "2030-01-01",
             "dauer": 120,
-            "firma": "Acme Records",
+            "firma": "Test Records",
             "gehalt": 75000,
         },
         "songs": [],

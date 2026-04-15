@@ -20,16 +20,17 @@ from http import HTTPStatus
 from typing import Final
 from httpx import get
 from pytest import mark
-from tests.integration.common_test import ctx, rest_url
-
-
-EMAIL_ADMIN: Final = "admin@acme.com"
-EMAIL_ALICE: Final = "alice.neon@acme.de"
+from tests.integration.common_test import (
+    ARTIST_ALICE_EMAIL,
+    ARTIST_BRUNO_EMAIL,
+    ctx,
+    rest_url,
+)
 
 
 @mark.rest
 @mark.get_request
-@mark.parametrize("email", [EMAIL_ADMIN, EMAIL_ALICE])
+@mark.parametrize("email", [ARTIST_ALICE_EMAIL, ARTIST_BRUNO_EMAIL])
 def test_get_by_email(email: str) -> None:
     params = {"email": email}
 

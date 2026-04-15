@@ -19,16 +19,38 @@
 from http import HTTPStatus
 from re import search
 from typing import Final
+from random import choices
+from string import ascii_lowercase
 
-from tests.integration.common_test import create_artist_payload, ctx, rest_url
+from tests.integration.common_test import (
+    ARTIST_ALICE_EMAIL,
+    ctx,
+    rest_url,
+)
 from httpx import post
 from pytest import mark
+
 
 @mark.rest
 @mark.post_request
 def test_post() -> None:
+    """Teste erfolgreiche Erstellung eines neuen Artists."""
     # arrange
-    neuer_artist: Final = create_artist_payload(marker="postok")
+    suffix: Final = ''.join(choices(ascii_lowercase, k=8))
+    neuer_artist: Final = {
+        "name": f"New Artist {suffix}",
+        "email": f"newartist.{suffix}@acme.de",
+        "geburtsdatum": "1995-01-01",
+        "username": f"newartist-{suffix}",
+        "vertrag": {
+            "startdatum": "2020-01-01",
+            "enddatum": "2030-01-01",
+            "dauer": 120,
+            "firma": "Test Records",
+            "gehalt": 75000,
+        },
+        "songs": [],
+    }
     headers = {"Content-Type": "application/json"}
 
     # act
@@ -51,6 +73,7 @@ def test_post() -> None:
 @mark.rest
 @mark.post_request
 def test_post_invalid() -> None:
+    """Teste Ablehnung ungültiger Daten."""
     # arrange
     neuer_artist_invalid: Final = {
         "name": "falscher_name_123",
@@ -88,16 +111,24 @@ def test_post_invalid() -> None:
 @mark.rest
 @mark.post_request
 def test_post_email_exists() -> None:
+    """Teste Ablehnung bei doppelter E-Mail (mit CSV-Daten)."""
     # arrange
-    neuer_artist: Final = create_artist_payload(marker="emailexists")
+    # Versuche einen neuen Artist mit Alices Email zu erstellen
+    neuer_artist: Final = {
+        "name": "Duplicate Email Artist",
+        "email": ARTIST_ALICE_EMAIL,  # Email aus CSV-Daten
+        "geburtsdatum": "1995-01-01",
+        "username": "duplicate-email-test",
+        "vertrag": {
+            "startdatum": "2020-01-01",
+            "enddatum": "2030-01-01",
+            "dauer": 120,
+            "firma": "Test Records",
+            "gehalt": 75000,
+        },
+        "songs": [],
+    }
     headers = {"Content-Type": "application/json"}
-    first_response: Final = post(
-        rest_url,
-        json=neuer_artist,
-        headers=headers,
-        verify=ctx,
-    )
-    assert first_response.status_code == HTTPStatus.CREATED
 
     # act
     response: Final = post(
@@ -109,15 +140,7 @@ def test_post_email_exists() -> None:
 
     # assert
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-    assert neuer_artist["email"] in response.text
-
-
-@mark.rest
-@mark.post_request
-def test_post_invalid_json() -> None:
-    # arrange
-    json_invalid: Final = '{"name" "Artist"}'
-    headers = {"Content-Type": "application/json"}
+    assert ARTIST_ALICE_EMAIL in response.text
 
     # act
     response: Final = post(

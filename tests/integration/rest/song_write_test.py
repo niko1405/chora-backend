@@ -1,7 +1,7 @@
 # ruff: noqa: S101, D103
 # Copyright (C) 2026 - present Juergen Zimmermann, Hochschule Karlsruhe
 
-"""Tests fuer POST/PUT/DELETE bei Song-Endpunkten."""
+"""Tests fuer POST/PUT/DELETE bei Song-Endpunkten - verwendet Testdaten aus CSV."""
 
 from http import HTTPStatus
 from typing import Final
@@ -10,24 +10,20 @@ from httpx import delete, post, put
 from pytest import mark
 
 from tests.integration.common_test import (
-    create_artist_payload,
+    ARTIST_ALICE_ID,
+    ARTIST_BRUNO_ID,
+    ARTIST_CLEO_ID,
     ctx,
     login,
-    rest_url,
     song_rest_url,
 )
-
 
 @mark.rest
 @mark.post_request
 def test_post_song() -> None:
+    """Teste Song-Erstellung mit CSV-Artist."""
     # arrange
-    artist = create_artist_payload(marker="songpost")
-    create_artist_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_artist_response.status_code == HTTPStatus.CREATED
-    artist_location = create_artist_response.headers.get("Location")
-    assert artist_location is not None
-    artist_id: Final = int(artist_location.rsplit("/", maxsplit=1)[-1])
+    artist_id: Final = ARTIST_ALICE_ID
 
     token: Final = login()
     headers = {"Authorization": f"Bearer {token}"}
@@ -56,13 +52,9 @@ def test_post_song() -> None:
 @mark.rest
 @mark.put_request
 def test_put_song() -> None:
+    """Teste Song-Update mit CSV-Artist."""
     # arrange
-    artist = create_artist_payload(marker="songput")
-    create_artist_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_artist_response.status_code == HTTPStatus.CREATED
-    artist_location = create_artist_response.headers.get("Location")
-    assert artist_location is not None
-    artist_id: Final = int(artist_location.rsplit("/", maxsplit=1)[-1])
+    artist_id: Final = ARTIST_BRUNO_ID
 
     token: Final = login()
     auth_headers = {"Authorization": f"Bearer {token}"}
@@ -105,13 +97,9 @@ def test_put_song() -> None:
 @mark.rest
 @mark.delete_request
 def test_delete_song() -> None:
+    """Teste Song-Löschung mit CSV-Artist."""
     # arrange
-    artist = create_artist_payload(marker="songdelete")
-    create_artist_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_artist_response.status_code == HTTPStatus.CREATED
-    artist_location = create_artist_response.headers.get("Location")
-    assert artist_location is not None
-    artist_id: Final = int(artist_location.rsplit("/", maxsplit=1)[-1])
+    artist_id: Final = ARTIST_CLEO_ID
 
     token: Final = login()
     auth_headers = {"Authorization": f"Bearer {token}"}

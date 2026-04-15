@@ -6,25 +6,26 @@
 from http import HTTPStatus
 from typing import Final
 
-from httpx import patch, post
+from httpx import get, patch
 from pytest import mark
 
-from tests.integration.common_test import create_artist_payload, ctx, login, rest_url
+from tests.integration.common_test import (
+    ARTIST_ALICE_ID,
+    ARTIST_BRUNO_ID,
+    ctx,
+    login,
+    rest_url,
+)
 
 
 @mark.rest
 @mark.patch_request
 def test_patch_artist_email() -> None:
+    """Teste Teilaktualisierung mit neuer E-Mail."""
     # arrange
-    artist = create_artist_payload(marker="patchok")
-    create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == HTTPStatus.CREATED
-    location = create_response.headers.get("Location")
-    assert location is not None
-    artist_id: Final = int(location.rsplit("/", maxsplit=1)[-1])
-
+    artist_id: Final = ARTIST_ALICE_ID
+    
     # Get current version
-    from httpx import get
     get_response: Final = get(f"{rest_url}/{artist_id}", verify=ctx)
     assert get_response.status_code == HTTPStatus.OK
     artist_data = get_response.json()
@@ -32,7 +33,7 @@ def test_patch_artist_email() -> None:
 
     token: Final = login()
     headers = {"If-Match": f'"{current_version}"', "Authorization": f"Bearer {token}"}
-    patch_payload = {"email": "artist.patch@acme.de"}
+    patch_payload = {"email": "alice.patch@acme.de"}
 
     # act
     response: Final = patch(
@@ -49,21 +50,17 @@ def test_patch_artist_email() -> None:
 @mark.rest
 @mark.patch_request
 def test_patch_artist_without_if_match() -> None:
+    """Teste Ablehnung ohne If-Match Header."""
     # arrange
-    artist = create_artist_payload(marker="patchnomatch")
-    create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == HTTPStatus.CREATED
-    location = create_response.headers.get("Location")
-    assert location is not None
-    artist_id: Final = int(location.rsplit("/", maxsplit=1)[-1])
-
+    artist_id: Final = ARTIST_BRUNO_ID
+    
     token: Final = login()
     headers = {"Authorization": f"Bearer {token}"}
 
     # act
     response: Final = patch(
         f"{rest_url}/{artist_id}",
-        json={"email": "artist.patch2@acme.de"},
+        json={"email": "bruno.patch@acme.de"},
         headers=headers,
         verify=ctx,
     )
@@ -75,12 +72,13 @@ def test_patch_artist_without_if_match() -> None:
 @mark.rest
 @mark.patch_request
 def test_patch_artist_not_found() -> None:
+    """Teste PATCH auf nicht vorhandenen Artist."""
     token: Final = login()
     headers = {"If-Match": '"0"', "Authorization": f"Bearer {token}"}
 
     response: Final = patch(
         f"{rest_url}/999999",
-        json={"email": "artist.patch3@acme.de"},
+        json={"email": "notfound.patch@acme.de"},
         headers=headers,
         verify=ctx,
     )

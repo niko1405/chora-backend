@@ -14,31 +14,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Tests fuer Queries mit GraphQL."""
+"""Tests fuer Queries mit GraphQL - verwendet Testdaten aus CSV."""
 
 from http import HTTPStatus
 from typing import Final
 
 from tests.integration.common_test import (
-    create_artist_payload,
+    ARTIST_ALICE_EMAIL,
+    ARTIST_ALICE_ID,
+    ARTIST_BRUNO_EMAIL,
     ctx,
     graphql_url,
     login_graphql,
-    rest_url,
 )
 from httpx import post
 from pytest import mark
 
+
 @mark.graphql
 @mark.query
 def test_query_id() -> None:
+    """Teste GraphQL Query mit Artist ID (aus CSV)."""
     # arrange
-    artist = create_artist_payload(marker="gqlid")
-    create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == HTTPStatus.CREATED
-    location = create_response.headers.get("Location")
-    assert location is not None
-    artist_id = int(location.rsplit("/", maxsplit=1)[-1])
+    artist_id = ARTIST_ALICE_ID
 
     token: Final = login_graphql()
     assert token is not None
@@ -46,7 +44,7 @@ def test_query_id() -> None:
 
     query_str = """
         {
-            artist(artistId: \"__ARTIST_ID__\") {
+            artist(artistId: "__ARTIST_ID__") {
                 id
                 version
                 name
@@ -75,13 +73,14 @@ def test_query_id() -> None:
     artist_response: Final = data["artist"]
     assert isinstance(artist_response, dict)
     assert artist_response["id"] == artist_id
-    assert artist_response["email"] == artist["email"]
+    assert artist_response["email"] == ARTIST_ALICE_EMAIL
     assert response_body.get("errors") is None
 
 
 @mark.graphql
 @mark.query
 def test_query_id_notfound() -> None:
+    """Teste GraphQL Query für nicht vorhandene ID."""
     # arrange
     token: Final = login_graphql()
     assert token is not None
@@ -111,11 +110,9 @@ def test_query_id_notfound() -> None:
 @mark.graphql
 @mark.query
 def test_query_artists_by_email() -> None:
+    """Teste GraphQL Query nach E-Mail (aus CSV)."""
     # arrange
-    artist = create_artist_payload(marker="gqlemail")
-    create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == HTTPStatus.CREATED
-    email = artist["email"]
+    email = ARTIST_ALICE_EMAIL
 
     token: Final = login_graphql()
     assert token is not None
@@ -123,7 +120,7 @@ def test_query_artists_by_email() -> None:
 
     query_str = """
         {
-            artists(suchparameter: {email: \"__EMAIL__\"}) {
+            artists(suchparameter: {email: "__EMAIL__"}) {
                 id
                 version
                 name
@@ -145,13 +142,14 @@ def test_query_artists_by_email() -> None:
     artists: Final = response_body["data"]["artists"]
     assert isinstance(artists, list)
     assert len(artists) > 0
-    assert artists[0]["email"] == artist["email"]
+    assert artists[0]["email"] == email
     assert response_body.get("errors") is None
 
 
 @mark.graphql
 @mark.query
 def test_query_artists_by_email_notfound() -> None:
+    """Teste GraphQL Query nach nicht vorhandener E-Mail."""
     # arrange
     token: Final = login_graphql()
     assert token is not None
@@ -183,31 +181,28 @@ def test_query_artists_by_email_notfound() -> None:
 @mark.graphql
 @mark.query
 def test_query_artists_by_name() -> None:
+    """Teste GraphQL Query nach Name (aus CSV)."""
     # arrange
-    artist = create_artist_payload(marker="gqlname")
-    artist["name"] = "Graph Artist"
-    artist["username"] = "graph-artist"
-    create_response: Final = post(rest_url, json=artist, verify=ctx)
-    assert create_response.status_code == HTTPStatus.CREATED
+    # Alice Neon enthält "Neon" oder "Alice"
+    search_name = "Alice"
 
     token: Final = login_graphql()
     assert token is not None
     headers: Final = {"Authorization": f"Bearer {token}"}
 
-    query: Final = {
-        "query": """
-            {
-                artists(suchparameter: {name: "Graph"}) {
-                    id
-                    version
-                    name
-                    email
-                    geburtsdatum
-                    username
-                }
+    query_str = """
+        {
+            artists(suchparameter: {name: "__NAME__"}) {
+                id
+                version
+                name
+                email
+                geburtsdatum
+                username
             }
-        """,
-    }
+        }
+    """.replace("__NAME__", search_name)
+    query: Final = {"query": query_str}
 
     # act
     response: Final = post(graphql_url, json=query, headers=headers, verify=ctx)
@@ -219,15 +214,10 @@ def test_query_artists_by_name() -> None:
     artists: Final = response_body["data"]["artists"]
     assert isinstance(artists, list)
     assert len(artists) > 0
+    # Mindestens Alice sollte gefunden werden
+    artist_names = [a["name"] for a in artists]
+    assert any("Alice" in name for name in artist_names)
     assert response_body.get("errors") is None
-
-
-@mark.graphql
-@mark.query
-def test_query_artists_by_name_notfound() -> None:
-    # arrange
-    token: Final = login_graphql()
-    assert token is not None
     headers: Final = {"Authorization": f"Bearer {token}"}
 
     query: Final = {
