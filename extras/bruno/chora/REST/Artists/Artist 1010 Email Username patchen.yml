@@ -17,8 +17,8 @@ http:
     type: json
     data: |-
       {
-        "email": "bruno.echo@acme.de",
-        "username": "test"
+        "email": "bruno.patch@acme.de",
+        "username": "testpatch"
       }
   auth: inherit
 
@@ -26,7 +26,7 @@ runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "404"
+      value: "204"
 
 settings:
   encodeUrl: true

@@ -5,13 +5,13 @@ info:
 
 http:
   method: GET
-  url: "{{restArtistsUrl}}?page=0"
+  url: "{{restArtistsUrl}}?page=1"
   headers:
     - name: Accept
       value: application/json
   params:
     - name: page
-      value: "0"
+      value: "1"
       type: query
 
 runtime:
