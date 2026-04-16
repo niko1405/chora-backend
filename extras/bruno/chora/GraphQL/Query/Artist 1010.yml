@@ -1,5 +1,5 @@
 info:
-  name: Artist mit ID 1
+  name: Artist 1010
   type: graphql
   seq: 1
 
@@ -17,7 +17,7 @@ graphql:
       }
     variables: |-
       {
-        "artistId": "1"
+        "artistId": "1010"
       }
   auth: inherit
 

@@ -1,7 +1,7 @@
 info:
   name: "Artist 1010 Email Username patchen "
   type: http
-  seq: 8
+  seq: 7
 
 http:
   method: PATCH

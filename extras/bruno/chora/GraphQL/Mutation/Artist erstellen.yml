@@ -17,21 +17,16 @@ graphql:
       {
         "artistInput": {
           "name": "Graphql Artist",
-          "genre": "Rock",
-          "alter": 27,
           "email": "graphql.artist@example.com",
+          "geburtsdatum": "2026-01-01",
           "vertrag": {
-            "artistId": 1,
-            "agentId": 1,
-            "startDate": "2026-01-01",
-            "endDate": "2027-12-31"
+            "startdatum": "2026-01-01",
+            "enddatum": "2027-12-31",
+            "dauer": 16,
+            "firma": "Universal",
+            "gehalt": 1120000.0
           },
-          "songs": [
-            {
-              "title": "Graphql Song",
-              "duration": 222
-            }
-          ],
+          "songs": [3010],
           "username": "graphqlartist"
         }
       }

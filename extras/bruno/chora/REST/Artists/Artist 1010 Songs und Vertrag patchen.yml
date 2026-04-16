@@ -1,7 +1,7 @@
 info:
   name: Artist 1010 Songs und Vertrag patchen
   type: http
-  seq: 9
+  seq: 8
 
 http:
   method: PATCH

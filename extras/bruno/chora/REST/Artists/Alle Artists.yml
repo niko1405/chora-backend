@@ -5,10 +5,14 @@ info:
 
 http:
   method: GET
-  url: "{{restArtistsUrl}}"
+  url: "{{restArtistsUrl}}?page=0"
   headers:
     - name: Accept
       value: application/json
+  params:
+    - name: page
+      value: "0"
+      type: query
 
 runtime:
   assertions:

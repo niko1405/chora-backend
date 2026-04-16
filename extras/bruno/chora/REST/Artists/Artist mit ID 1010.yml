@@ -1,7 +1,7 @@
 info:
   name: Artist mit ID 1010
   type: http
-  seq: 4
+  seq: 2
 
 http:
   method: GET
