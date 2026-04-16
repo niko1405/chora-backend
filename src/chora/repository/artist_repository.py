@@ -83,17 +83,15 @@ class ArtistRepository:
         """Alle Artist-Objekte mit Pagination suchen."""
         logger.debug("aufgerufen")
         offset: int = pageable.number * pageable.size
+        base_statement: Final = (
+            select(Artist)
+            .options(joinedload(Artist.vertrag))
+            .order_by(Artist.id)
+        )
         statement: Final = (
-            (
-                select(Artist)
-                .options(joinedload(Artist.vertrag))
-                .limit(pageable.size)
-                .offset(offset)
-            )
+            base_statement.limit(pageable.size).offset(offset)
             if pageable.size != 0
-            else (
-                select(Artist).options(joinedload(Artist.vertrag))
-            )
+            else base_statement
         )
         artists: Final = session.scalars(statement).all()
         anzahl: Final = self._count_all_rows(session)
@@ -131,20 +129,16 @@ class ArtistRepository:
     ) -> Slice[Artist]:
         logger.debug("teil={}", teil)
         offset = pageable.number * pageable.size
+        base_statement: Final = (
+            select(Artist)
+            .options(joinedload(Artist.vertrag))
+            .filter(Artist.name.ilike(f"%{teil}%"))
+            .order_by(Artist.id)
+        )
         statement: Final = (
-            (
-                select(Artist)
-                .options(joinedload(Artist.vertrag))
-                .filter(Artist.name.ilike(f"%{teil}%"))
-                .limit(pageable.size)
-                .offset(offset)
-            )
+            base_statement.limit(pageable.size).offset(offset)
             if pageable.size != 0
-            else (
-                select(Artist)
-                .options(joinedload(Artist.vertrag))
-                .filter(Artist.name.ilike(f"%{teil}%"))
-            )
+            else base_statement
         )
         artists: Final = session.scalars(statement).all()
         anzahl: Final = self._count_rows_name(teil, session)
