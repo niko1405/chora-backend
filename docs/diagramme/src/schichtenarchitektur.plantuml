@@ -63,13 +63,19 @@ package chora {
   }
 
   package config {
-    [db]
     [graphql]
-    [keycloak]
     [server]
     [tls]
     [dev_modus]
   }
+}
+
+package PostgreSQL {
+  [postgres_db]
+}
+
+package Keycloak {
+  [keycloak_server]
 }
 
 [artist_router] --> [ArtistService]
@@ -85,12 +91,12 @@ package chora {
 [ArtistWriteService] --> [SongRepository]
 [SongService] --> [SongRepository]
 [SongWriteService] --> [SongRepository]
-[TokenService] --> [keycloak]
-[UserService] --> [keycloak]
+[TokenService] --> [keycloak_server]
+[UserService] --> [keycloak_server]
 
 [ArtistRepository] --> [session_factory]
 [SongRepository] --> [session_factory]
-[session_factory] --> [db]
+[session_factory] --> [postgres_db]
 [ArtistRepository] ..> [Artist]
 [SongRepository] ..> [Song]
 [Artist] ..> [song_artist]

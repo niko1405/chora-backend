@@ -27,7 +27,7 @@ entity "artist" as artist {
   * name : text
   * email : text <<unique>>
   * geburtsdatum : date
-    username : text
+  * username : text
   * erzeugt : timestamp
   * aktualisiert : timestamp
 }
@@ -59,7 +59,7 @@ entity "vertrag" as vertrag {
 
 artist ||--|| vertrag
 artist ||--o{ song_artist
-song ||--o{ song_artist
+song ||--|{ song_artist
 
 footer Chora
 
