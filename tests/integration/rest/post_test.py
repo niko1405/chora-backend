@@ -23,11 +23,11 @@ from typing import Final
 from httpx import post
 from pytest import mark
 
-from tests.integration.common_test import (
+from tests.integration.common_test import (  # ty:ignore[unresolved-import]
     ARTIST_ALICE_EMAIL,
+    REST_URL,
     create_artist_payload,
     ctx,
-    REST_URL,
 )
 
 

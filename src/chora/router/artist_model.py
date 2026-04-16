@@ -1,6 +1,5 @@
 """Pydantic-Model für Artist-Entitäten."""
 
-
 from typing import Final
 
 from chora.entity.artist import Artist

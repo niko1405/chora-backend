@@ -2,6 +2,7 @@
 
 This module provides a simple REST API for songwriting workspace management.
 """
+
 from collections.abc import AsyncGenerator, Awaitable, Callable
 from pathlib import Path
 from time import time
@@ -81,8 +82,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:  # noqa: RUF029
 
 
 # Instanz der App erstellen
-app: Final = FastAPI(title="Songs API", description="Songwriting Workspace",
-                     version="1.0.0", lifespan=lifespan)
+app: Final = FastAPI(
+    title="Songs API",
+    description="Songwriting Workspace",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 
 # FastAPI-App fuer Metriken fuer Prometheus instrumentieren: Endpunkt /metrics
 Instrumentator().instrument(app).expose(app)

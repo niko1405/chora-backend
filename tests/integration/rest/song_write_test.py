@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103  # noqa: RUF100
+# ruff: noqa: S101
 # Copyright (C) 2026 - present Juergen Zimmermann, Hochschule Karlsruhe
 
 """Tests fuer POST/PUT/DELETE bei Song-Endpunkten - verwendet Testdaten aus CSV."""
@@ -9,13 +9,13 @@ from typing import Final
 from httpx import delete, post, put
 from pytest import mark
 
-from tests.integration.common_test import (
+from tests.integration.common_test import (  # ty:ignore[unresolved-import]
     ARTIST_ALICE_ID,
     ARTIST_BRUNO_ID,
     ARTIST_CLEO_ID,
+    SONG_REST_URL,
     ctx,
     login,
-    SONG_REST_URL,
 )
 
 

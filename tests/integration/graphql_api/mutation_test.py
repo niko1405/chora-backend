@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103  # noqa: RUF100
+# ruff: noqa: S101  # noqa: RUF100
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,10 @@ from typing import Final
 from httpx import post
 from pytest import mark
 
-from tests.integration.common_test import ctx, GRAPHQL_URL
+from tests.integration.common_test import (  # ty:ignore[unresolved-import]
+    GRAPHQL_URL,
+    ctx,
+)
 
 
 @mark.graphql

@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103  # noqa: RUF100
+# ruff: noqa: S101
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -22,14 +22,14 @@ from typing import Final
 from httpx import get, put
 from pytest import mark
 
-from tests.integration.common_test import (
+from tests.integration.common_test import (  # ty:ignore[unresolved-import]
     ARTIST_ALICE_ID,
     ARTIST_BRUNO_ID,
+    REST_URL,
     SONG_ID_1,
     SONG_ID_2,
     ctx,
     login,
-    REST_URL,
 )
 
 EMAIL_UPDATE: Final = "artist.update@acme.de"
@@ -58,7 +58,7 @@ def test_put() -> None:
             "enddatum": "2028-12-31",
             "dauer": 36,
             "firma": "Sony",
-            "gehalt": 180000.0
+            "gehalt": 180000.0,
         },
         "songs": [SONG_ID_1, SONG_ID_2],
     }
@@ -132,9 +132,9 @@ def test_put_nicht_vorhanden() -> None:
             "enddatum": "2028-12-31",
             "dauer": 36,
             "firma": "Sony",
-            "gehalt": 180000.0
+            "gehalt": 180000.0,
         },
-        "songs": []
+        "songs": [],
     }
     token: Final = login()
     headers = {"If-Match": if_match, "Authorization": f"Bearer {token}"}

@@ -1,4 +1,4 @@
-# ruff: noqa: S101, S106, D103, ARG005  # noqa: RUF100
+# ruff: noqa: S101, S106, ARG005  # noqa: RUF100
 # pylint: disable=redefined-outer-name
 
 """Unit-Tests fuer find_by_id() von ArtistService."""
@@ -93,7 +93,7 @@ def test_find_by_id_not_found(artist_service: ArtistService, session_mock) -> No
     artist_id = 999
     user = _user(username="mocktest", roles=[Role.ADMIN])
 
-    artist_service.repo.find_by_id = lambda **_: None
+    artist_service.repo.find_by_id = lambda **_: None  # ty:ignore[invalid-assignment]
 
     with raises(NotFoundError) as err:
         artist_service.find_by_id(artist_id=artist_id, user=user)
@@ -114,7 +114,7 @@ def test_find_by_id_not_found_not_admin(
     artist_id = 999
     user = _user(username="mocktest", roles=[])
 
-    artist_service.repo.find_by_id = lambda **_: None
+    artist_service.repo.find_by_id = lambda **_: None  # ty:ignore[invalid-assignment]
 
     with raises(ForbiddenError) as err:
         artist_service.find_by_id(artist_id=artist_id, user=user)

@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103, ARG005  # noqa: RUF100
+# ruff: noqa: S101, ARG005  # noqa: RUF100
 # pylint: disable=redefined-outer-name
 
 """Unit-Tests fuer find() von ArtistService."""

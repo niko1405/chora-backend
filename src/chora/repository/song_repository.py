@@ -26,8 +26,12 @@ class SongRepository:
         if song_id is None:
             return None
 
-        statement = select(Song).options(joinedload(Song.artists)).where(
-            Song.id == song_id,
+        statement = (
+            select(Song)
+            .options(joinedload(Song.artists))
+            .where(
+                Song.id == song_id,
+            )
         )
         if artist_id is not None:
             statement = statement.where(Song.artists.any(Artist.id == artist_id))
@@ -54,8 +58,8 @@ class SongRepository:
         """Songs anhand einer ID-Liste suchen."""
         if len(song_ids) == 0:
             return []
-        statement: Final = select(Song).options(joinedload(Song.artists)).where(
-            Song.id.in_(song_ids)
+        statement: Final = (
+            select(Song).options(joinedload(Song.artists)).where(Song.id.in_(song_ids))
         )
         return list(session.scalars(statement).unique().all())
 

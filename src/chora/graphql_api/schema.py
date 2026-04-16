@@ -68,8 +68,7 @@ class Query:
         return artist_dto
 
     @strawberry.field
-    def artists(self, suchparameter: Suchparameter, info: Info
-    ) -> Sequence[ArtistDTO]:
+    def artists(self, suchparameter: Suchparameter, info: Info) -> Sequence[ArtistDTO]:
         """Artist durch Suchparameter finden.
 
         :param suchparameter: Suchparameter für die Suche

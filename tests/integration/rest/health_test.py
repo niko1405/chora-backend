@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103  # noqa: RUF100
+# ruff: noqa: S101  # noqa: RUF100
 # Copyright (C) 2023 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,10 @@ from typing import Any, Final
 from httpx import get
 from pytest import mark
 
-from tests.integration.common_test import ctx, HEALTH_URL
+from tests.integration.common_test import (  # ty:ignore[unresolved-import]
+    HEALTH_URL,
+    ctx,
+)
 
 
 @mark.rest

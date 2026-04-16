@@ -39,7 +39,7 @@ class SongWriteService:
             song_db.artists = artists
             song_id = song_db.id
             if song_id is None:
-                raise ValueError("Song-ID konnte nach dem Anlegen nicht ermittelt werden")
+                raise ValueError("Song-ID nach dem Anlegen nicht ermittelt werden")
             session.commit()
             return song_id
 
@@ -104,7 +104,7 @@ class SongWriteService:
                 session=session,
             )
             if song_db is None:
-                raise NotFoundError()
+                raise NotFoundError()  # noqa: RSE102
 
             self.song_repo.delete(song=song_db, session=session)
 
@@ -127,7 +127,7 @@ class SongWriteService:
             if artist is not None
         ]
         if len(artists) != len(artist_ids):
-            raise NotFoundError()
+            raise NotFoundError()  # noqa: RSE102
         return artists
 
     def _ensure_unique_titel(

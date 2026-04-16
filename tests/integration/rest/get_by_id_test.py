@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103, I001  # noqa: RUF100
+# ruff: noqa: S101, I001  # noqa: RUF100
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ from http import HTTPStatus
 from typing import Final
 from httpx import get
 from pytest import mark
-from tests.integration.common_test import ctx, REST_URL, SONG_REST_URL
+from tests.integration.common_test import ctx, REST_URL, SONG_REST_URL  # ty:ignore[unresolved-import]
 
 
 ARTIST_ID_ADMIN: Final = 1000

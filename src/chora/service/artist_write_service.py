@@ -147,9 +147,7 @@ class ArtistWriteService:
 
         with Session() as session:
             if (
-                artist_db := self.repo.find_by_id(
-                    artist_id=artist_id, session=session
-                )
+                artist_db := self.repo.find_by_id(artist_id=artist_id, session=session)
             ) is None:
                 raise NotFoundError(artist_id)
             if artist_db.version > version:
@@ -238,9 +236,7 @@ class ArtistWriteService:
 
         with Session() as session:
             if (
-                artist_db := self.repo.find_by_id(
-                    artist_id=artist_id, session=session
-                )
+                artist_db := self.repo.find_by_id(artist_id=artist_id, session=session)
             ) is None:
                 raise NotFoundError(artist_id)
             if artist_db.version > version:
@@ -331,7 +327,7 @@ class ArtistWriteService:
             session.flush()
 
         if new_vertrag is None:
-            artist_db.vertrag = None
+            artist_db.vertrag = None  # ty:ignore[invalid-assignment]
             return
 
         new_vertrag.artist = artist_db

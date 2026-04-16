@@ -111,8 +111,7 @@ def get(
 
 
 def _artist_slice_to_page(
-        artist_slice: Slice[ArtistDTO],
-        pageable: Pageable
+    artist_slice: Slice[ArtistDTO], pageable: Pageable
 ) -> dict[str, Any]:
     """Konvertiert ein ArtistSlice in eine Page für die JSON-Antwort.
 

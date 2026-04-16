@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103  # noqa: RUF100
+# ruff: noqa: S101
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -22,11 +22,11 @@ from typing import Final
 from httpx import post
 from pytest import mark
 
-from tests.integration.common_test import (
+from tests.integration.common_test import (  # ty:ignore[unresolved-import]
     ARTIST_ALICE_EMAIL,
     ARTIST_ALICE_ID,
-    ctx,
     GRAPHQL_URL,
+    ctx,
     login_graphql,
 )
 

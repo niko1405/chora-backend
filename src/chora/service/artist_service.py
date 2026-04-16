@@ -76,9 +76,7 @@ class ArtistService:
         return artist_dto
 
     def find(
-            self,
-            suchparameter: Mapping[str, str],
-            pageable: Pageable
+        self, suchparameter: Mapping[str, str], pageable: Pageable
     ) -> Slice[ArtistDTO]:
         """Suche mit optionalen Query-Parametern und Pagination.
 

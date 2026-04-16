@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103  # noqa: RUF100
+# ruff: noqa: S101  # noqa: RUF100
 # Copyright (C) 2026 - present Juergen Zimmermann, Hochschule Karlsruhe
 
 """Tests fuer PATCH bei Artists."""
@@ -9,12 +9,12 @@ from typing import Final
 from httpx import get, patch
 from pytest import mark
 
-from tests.integration.common_test import (
+from tests.integration.common_test import (  # ty:ignore[unresolved-import]
     ARTIST_ALICE_ID,
     ARTIST_BRUNO_ID,
+    REST_URL,
     ctx,
     login,
-    REST_URL,
 )
 
 

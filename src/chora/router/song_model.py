@@ -16,9 +16,7 @@ class SongModel(BaseModel):
 
     titel: Annotated[
         str,
-        StringConstraints(
-            pattern=r"^[a-zA-Z\s]+$", min_length=1, max_length=100
-        ),
+        StringConstraints(pattern=r"^[a-zA-Z\s]+$", min_length=1, max_length=100),
     ]
     """Der Titel des Songs."""
 

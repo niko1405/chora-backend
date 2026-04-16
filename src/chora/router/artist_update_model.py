@@ -1,6 +1,5 @@
 """Pydantic Update Modell für die Darstellung der Artist-Entität in der API."""
 
-
 from typing import Self
 
 from pydantic import ConfigDict, model_validator
@@ -33,9 +32,9 @@ class ArtistUpdateModel(ArtistBaseModel):
                     "enddatum": "2028-12-31",
                     "dauer": 36,
                     "firma": "Universal",
-                    "gehalt": 250000.0
+                    "gehalt": 250000.0,
                 },
-                "songs": [1001, 1002]
+                "songs": [1001, 1002],
             }
         }
     )

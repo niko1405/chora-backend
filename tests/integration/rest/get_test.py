@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103, I001  # noqa: RUF100
+# ruff: noqa: S101, I001  # noqa: RUF100
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ from http import HTTPStatus
 from typing import Final
 from httpx import get
 from pytest import mark
-from tests.integration.common_test import (
+from tests.integration.common_test import (  # ty:ignore[unresolved-import]
     ARTIST_ALICE_EMAIL,
     ARTIST_BRUNO_EMAIL,
     ctx,
@@ -121,7 +121,7 @@ def test_get_with_pagination_disjoint_pages() -> None:
     first_ids: Final = [artist["id"] for artist in first_body["content"]]
     second_ids: Final = [artist["id"] for artist in second_body["content"]]
 
-    assert len(first_ids) == 5
+    assert len(first_ids) == 5  # noqa: PLR2004
     assert len(second_ids) == 1
     assert set(first_ids).isdisjoint(second_ids)
     assert len(set(first_ids + second_ids)) == first_body["page"]["total_elements"]

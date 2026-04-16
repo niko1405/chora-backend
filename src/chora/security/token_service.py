@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """Anwendungskern für Benutzerdaten."""
+
 from collections.abc import Mapping
 from dataclasses import asdict
 from typing import Any, Final

@@ -11,11 +11,11 @@ from chora.router.artist_write_router import (
     put,
 )
 from chora.router.health_router import router as health_router
-from chora.security.auth_router import router as auth_router
 from chora.router.shutdown_router import router as shutdown_router
 from chora.router.shutdown_router import shutdown
 from chora.router.song_router import song_router
 from chora.router.song_write_router import song_write_router
+from chora.security.auth_router import router as auth_router
 
 __all__: Sequence[str] = [
     "artist_router",

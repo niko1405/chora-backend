@@ -32,16 +32,13 @@ class Vertrag(Base):
     gehalt: Mapped[float]
     """Das Gehalt, das im Vertrag vereinbart wurde."""
 
-    id: Mapped[int] = mapped_column(
-        Identity(start=1000),
-         primary_key=True
-    )
+    id: Mapped[int] = mapped_column(Identity(start=1000), primary_key=True)
     """Die eindeutige ID des Vertrags."""
 
     artist_id: Mapped[int] = mapped_column(ForeignKey("artist.id"))
     """Die ID des Künstlers, der den Vertrag abgeschlossen hat, als Fremdschlüssel."""
 
-    artist: Mapped["Artist"] = relationship(back_populates="vertrag")
+    artist: Mapped[Artist] = relationship(back_populates="vertrag")
     """Die Beziehung zum Künstler, der den Vertrag abgeschlossen hat."""
 
     def __repr__(self) -> str:

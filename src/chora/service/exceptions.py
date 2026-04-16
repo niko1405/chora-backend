@@ -38,8 +38,10 @@ class NotFoundError(Exception):
     """Exception, wenn eine Ressource nicht gefunden wurde."""
 
     def __init__(
-        self, artist_id: int | None = None,
-        suchparameter: Mapping[str, str] | None = None) -> None:
+        self,
+        artist_id: int | None = None,
+        suchparameter: Mapping[str, str] | None = None,
+    ) -> None:
         """Initialisiert die Exception.
 
         :param artist_id: Die ID des nicht gefundenen Künstlers

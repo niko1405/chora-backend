@@ -1,4 +1,5 @@
 """Repository fuer die Chora-Objekte."""
+
 from collections.abc import Mapping, Sequence
 from typing import Final
 
@@ -84,9 +85,7 @@ class ArtistRepository:
         logger.debug("aufgerufen")
         offset: int = pageable.number * pageable.size
         base_statement: Final = (
-            select(Artist)
-            .options(joinedload(Artist.vertrag))
-            .order_by(Artist.id)
+            select(Artist).options(joinedload(Artist.vertrag)).order_by(Artist.id)
         )
         statement: Final = (
             base_statement.limit(pageable.size).offset(offset)
@@ -167,9 +166,7 @@ class ArtistRepository:
         logger.debug("email={}", email)
 
         statement: Final = (
-            select(Artist.id)
-            .where(func.lower(Artist.email) == email.lower())
-            .limit(1)
+            select(Artist.id).where(func.lower(Artist.email) == email.lower()).limit(1)
         )
         result: Final = session.scalar(statement)
         return result is not None
@@ -220,9 +217,7 @@ class ArtistRepository:
         """Artist-Objekte anhand eines Namens suchen."""
         logger.debug("teil={}", teil)
         statement: Final = (
-            select(Artist.name)
-            .filter(Artist.name.ilike(f"%{teil}%"))
-            .distinct()
+            select(Artist.name).filter(Artist.name.ilike(f"%{teil}%")).distinct()
         )
         artists: Final = (session.scalars(statement)).all()
         logger.debug("artists={}", artists)

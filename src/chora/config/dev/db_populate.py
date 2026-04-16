@@ -29,9 +29,11 @@ from sqlalchemy.exc import DataError
 from chora.config.config import resources_path
 from chora.config.db import (
     db_connect_args,
-    db_dialect as _db_dialect,
     db_log_statements,
     db_url_admin,
+)
+from chora.config.db import (
+    db_dialect as _db_dialect,
 )
 from chora.config.dev_modus import dev_db_populate
 from chora.repository import engine
@@ -164,7 +166,7 @@ class DbPopulateService:
 
     def _load_legacy_song_csv(self, csv_path: str, connection: Connection) -> None:
         """Legacy-Song-CSV mit `artist_id` laden und in `song_artist` aufteilen."""
-        logger.warning("Legacy song.csv mit artist_id erkannt: Join-Tabelle wird daraus befüllt")
+        logger.warning("Legacy song.csv mit artist_id erkannt: Join-Tabelle  befüllt")
         connection.execute(
             text(
                 """
@@ -234,7 +236,7 @@ class DbPopulateService:
         """Setzt die ID-Sequence nach CSV-Import auf den aktuell hoechsten Wert."""
         logger.debug("Sequence-Abgleich fuer Tabelle {}", tabelle)
         setval_cmd: Final = Template(
-            "SELECT setval(" 
+            "SELECT setval("
             "pg_get_serial_sequence('chora.${TABELLE}', 'id'), "
             "COALESCE((SELECT MAX(id) FROM ${TABELLE}), 999), "
             "true);"

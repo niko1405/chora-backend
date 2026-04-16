@@ -1,4 +1,4 @@
-# ruff: noqa: D103  # noqa: RUF100
+# noqa: RUF100
 # Copyright (C) 2023 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 
 from pytest import fixture
 
-from tests.integration.common_test import (
+from tests.integration.common_test import (  # ty:ignore[unresolved-import]
     check_readiness,
     db_populate,
     keycloak_populate,
