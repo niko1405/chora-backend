@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103, ARG005
+# ruff: noqa: S101, D103, ARG005  # noqa: RUF100
 # pylint: disable=redefined-outer-name
 
 """Unit-Tests fuer create() von ArtistWriteService."""
@@ -14,6 +14,7 @@ from chora.service.exceptions import EmailExistsError, UsernameExistsError
 
 @fixture(name="session_mock")
 def _session_mock(mocker):
+    """Stellt einen Mock für die Session bereit,kein echter DB-Zugriff."""
     session = mocker.Mock()
     mocker.patch(
         "chora.service.artist_write_service.Session",
@@ -57,6 +58,7 @@ def _artist(
 @mark.unit
 @mark.unit_create
 def test_create(artist_write_service, session_mock, mocker) -> None:
+    """Teste Erstellung eines Artists."""
     artist = _artist()
 
     session_mock.add.return_value = None
@@ -75,6 +77,7 @@ def test_create(artist_write_service, session_mock, mocker) -> None:
 @mark.unit
 @mark.unit_create
 def test_create_username_none(artist_write_service) -> None:
+    """Teste Erstellung eines Artists mit None als Username."""
     artist = _artist(username=None)
 
     with raises(ValueError) as err:
@@ -86,6 +89,7 @@ def test_create_username_none(artist_write_service) -> None:
 @mark.unit
 @mark.unit_create
 def test_create_username_exists(artist_write_service, user_service_mock) -> None:
+    """Teste Erstellung eines Artists mit bereits vorhandenem Username."""
     artist = _artist()
     user_service_mock.username_exists.return_value = True
 
@@ -98,6 +102,7 @@ def test_create_username_exists(artist_write_service, user_service_mock) -> None
 @mark.unit
 @mark.unit_create
 def test_create_email_exists(artist_write_service, user_service_mock) -> None:
+    """Teste Erstellung eines Artists mit bereits vorhandener Email."""
     artist = _artist(email="exists@email.test")
     user_service_mock.username_exists.return_value = False
     user_service_mock.email_exists.return_value = True

@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101, D103  # noqa: RUF100
 # Copyright (C) 2026 - present Juergen Zimmermann, Hochschule Karlsruhe
 
 """Tests fuer PATCH bei Artists."""
@@ -14,7 +14,7 @@ from tests.integration.common_test import (
     ARTIST_BRUNO_ID,
     ctx,
     login,
-    rest_url,
+    REST_URL,
 )
 
 
@@ -26,7 +26,7 @@ def test_patch_artist_email() -> None:
     artist_id: Final = ARTIST_ALICE_ID
 
     # Get current version
-    get_response: Final = get(f"{rest_url}/{artist_id}", verify=ctx)
+    get_response: Final = get(f"{REST_URL}/{artist_id}", verify=ctx)
     assert get_response.status_code == HTTPStatus.OK
     artist_data = get_response.json()
     current_version: Final = artist_data.get("version", 0)
@@ -37,7 +37,7 @@ def test_patch_artist_email() -> None:
 
     # act
     response: Final = patch(
-        f"{rest_url}/{artist_id}",
+        f"{REST_URL}/{artist_id}",
         json=patch_payload,
         headers=headers,
         verify=ctx,
@@ -59,7 +59,7 @@ def test_patch_artist_without_if_match() -> None:
 
     # act
     response: Final = patch(
-        f"{rest_url}/{artist_id}",
+        f"{REST_URL}/{artist_id}",
         json={"email": "bruno.patch@acme.de"},
         headers=headers,
         verify=ctx,
@@ -77,7 +77,7 @@ def test_patch_artist_not_found() -> None:
     headers = {"If-Match": '"0"', "Authorization": f"Bearer {token}"}
 
     response: Final = patch(
-        f"{rest_url}/999999",
+        f"{REST_URL}/999999",
         json={"email": "notfound.patch@acme.de"},
         headers=headers,
         verify=ctx,

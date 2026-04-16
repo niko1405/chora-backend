@@ -29,7 +29,7 @@ from tests.integration.common_test import (
     SONG_ID_2,
     ctx,
     login,
-    rest_url,
+    REST_URL,
 )
 
 EMAIL_UPDATE: Final = "artist.update@acme.de"
@@ -43,7 +43,7 @@ def test_put() -> None:
     artist_id: Final = ARTIST_ALICE_ID
 
     # Get current version
-    get_response: Final = get(f"{rest_url}/{artist_id}", verify=ctx)
+    get_response: Final = get(f"{REST_URL}/{artist_id}", verify=ctx)
     assert get_response.status_code == HTTPStatus.OK
     artist_data = get_response.json()
     current_version: Final = artist_data.get("version", 0)
@@ -67,7 +67,7 @@ def test_put() -> None:
 
     # act
     response: Final = put(
-        f"{rest_url}/{artist_id}",
+        f"{REST_URL}/{artist_id}",
         json=updated_artist,
         headers=headers,
         verify=ctx,
@@ -86,7 +86,7 @@ def test_put_invalid() -> None:
     artist_id: Final = ARTIST_BRUNO_ID
 
     # Get current version
-    get_response: Final = get(f"{rest_url}/{artist_id}", verify=ctx)
+    get_response: Final = get(f"{REST_URL}/{artist_id}", verify=ctx)
     assert get_response.status_code == HTTPStatus.OK
     artist_data = get_response.json()
     current_version: Final = artist_data.get("version", 0)
@@ -102,7 +102,7 @@ def test_put_invalid() -> None:
 
     # act
     response: Final = put(
-        f"{rest_url}/{artist_id}",
+        f"{REST_URL}/{artist_id}",
         json=invalid_artist,
         headers=headers,
         verify=ctx,
@@ -141,7 +141,7 @@ def test_put_nicht_vorhanden() -> None:
 
     # act
     response: Final = put(
-        f"{rest_url}/{artist_id}",
+        f"{REST_URL}/{artist_id}",
         json=updated_artist,
         headers=headers,
         verify=ctx,

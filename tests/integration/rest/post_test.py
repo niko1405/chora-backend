@@ -27,7 +27,7 @@ from tests.integration.common_test import (
     ARTIST_ALICE_EMAIL,
     create_artist_payload,
     ctx,
-    rest_url,
+    REST_URL,
 )
 
 
@@ -41,7 +41,7 @@ def test_post() -> None:
 
     # act
     response: Final = post(
-        rest_url,
+        REST_URL,
         json=neuer_artist,
         headers=headers,
         verify=ctx,
@@ -79,7 +79,7 @@ def test_post_invalid() -> None:
 
     # act
     response: Final = post(
-        rest_url,
+        REST_URL,
         json=neuer_artist_invalid,
         headers=headers,
         verify=ctx,
@@ -118,7 +118,7 @@ def test_post_email_exists() -> None:
 
     # act
     response: Final = post(
-        rest_url,
+        REST_URL,
         json=neuer_artist,
         headers=headers,
         verify=ctx,
@@ -140,7 +140,7 @@ def test_post_invalid_username() -> None:
 
     # act
     response: Final = post(
-        rest_url,
+        REST_URL,
         json=neuer_artist_invalid,
         headers=headers,
         verify=ctx,

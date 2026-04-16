@@ -1,4 +1,4 @@
-# ruff: noqa: S101, S106, D103, ARG005
+# ruff: noqa: S101, S106, D103, ARG005  # noqa: RUF100
 # pylint: disable=redefined-outer-name
 
 """Unit-Tests fuer find_by_id() von ArtistService."""
@@ -70,6 +70,7 @@ def _artist(*, artist_id: int, username: str) -> Artist:
 @mark.unit
 @mark.unit_find_by_id
 def test_find_by_id(artist_service, session_mock) -> None:
+    """Teste find_by_id() mit vorhandener Artist-ID."""
     artist_id = 1
     username = "mocktest"
     user = _user(username=username, roles=[Role.ADMIN])
@@ -87,6 +88,7 @@ def test_find_by_id(artist_service, session_mock) -> None:
 @mark.unit
 @mark.unit_find_by_id
 def test_find_by_id_not_found(artist_service: ArtistService, session_mock) -> None:
+    """Teste find_by_id() mit nicht vorhandener Artist-ID."""
     _ = session_mock
     artist_id = 999
     user = _user(username="mocktest", roles=[Role.ADMIN])
@@ -107,6 +109,7 @@ def test_find_by_id_not_found_not_admin(
     artist_service: ArtistService,
     session_mock,
 ) -> None:
+    """Teste find_by_id() mit nicht vorhandener Artist-ID und nicht-admin Benutzer."""
     _ = session_mock
     artist_id = 999
     user = _user(username="mocktest", roles=[])
@@ -122,6 +125,7 @@ def test_find_by_id_not_found_not_admin(
 @mark.unit
 @mark.unit_find_by_id
 def test_find_by_id_not_admin_same_user(artist_service, session_mock) -> None:
+    """Teste find_by_id() mit nicht-admin Benutzer und gleicher User-ID."""
     artist_id = 1
     username = "mocktest"
     user = _user(username=username, roles=[Role.USER])
@@ -139,6 +143,7 @@ def test_find_by_id_not_admin_same_user(artist_service, session_mock) -> None:
 @mark.unit
 @mark.unit_find_by_id
 def test_find_by_id_other_user_forbidden(artist_service, session_mock) -> None:
+    """Teste find_by_id() mit anderem Benutzer und nicht-admin Benutzer."""
     _ = session_mock
     artist_id = 1
     user = _user(username="other", roles=[Role.USER])

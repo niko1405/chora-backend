@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101, D103  # noqa: RUF100
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,14 +19,16 @@
 from http import HTTPStatus
 from typing import Final
 
-from tests.integration.common_test import ctx, graphql_url
 from httpx import post
 from pytest import mark
+
+from tests.integration.common_test import ctx, GRAPHQL_URL
 
 
 @mark.graphql
 @mark.mutation
 def test_login_mutation() -> None:
+    """Teste GraphQL Mutation fuer Login."""
     # arrange
     query: Final = {
         "query": """
@@ -40,7 +42,7 @@ def test_login_mutation() -> None:
     }
 
     # act
-    response: Final = post(graphql_url, json=query, verify=ctx)
+    response: Final = post(GRAPHQL_URL, json=query, verify=ctx)
 
     # assert
     assert response is not None
@@ -57,6 +59,7 @@ def test_login_mutation() -> None:
 @mark.graphql
 @mark.mutation
 def test_create_invalid() -> None:
+    """Teste GraphQL Mutation mit invaliden Daten."""
     # arrange
     query: Final = {
         "query": """
@@ -64,21 +67,16 @@ def test_create_invalid() -> None:
                 create(
                     artistInput: {
                         name: "Invalid"
-                        genre: "Rock"
-                        alter: 20
+                        geburtsdatum: "invalid"
                         email: "falsche_email@"
                         vertrag: {
-                            artistId: 1
-                            agentId: 1
-                            startDate: "2026-01-01"
-                            endDate: "2026-12-31"
+                            startdatum: "2026-01-01"
+                            enddatum: "2026-12-31"
+                            dauer: 12
+                            firma: "Invalid Firma"
+                            gehalt: 50000.0
                         }
-                        songs: [
-                            {
-                                title: "MySong"
-                                duration: 120
-                            }
-                        ]
+                        songs: [3010]
                         username: "invalid"
                     }
                 ) {
@@ -89,7 +87,7 @@ def test_create_invalid() -> None:
     }
 
     # act
-    response: Final = post(graphql_url, json=query, verify=ctx)
+    response: Final = post(GRAPHQL_URL, json=query, verify=ctx)
 
     # assert
     assert response.status_code == HTTPStatus.OK

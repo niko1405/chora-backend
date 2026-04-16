@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101, D103  # noqa: RUF100
 # Copyright (C) 2023 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,16 +19,18 @@
 from http import HTTPStatus
 from typing import Any, Final
 
-from tests.integration.common_test import ctx, health_url
 from httpx import get
 from pytest import mark
+
+from tests.integration.common_test import ctx, HEALTH_URL
 
 
 @mark.rest
 @mark.health
 def test_liveness() -> None:
+    """Test für die Liveness-Endpoint."""
     # act
-    response: Final = get(f"{health_url}/liveness", verify=ctx)
+    response: Final = get(f"{HEALTH_URL}/liveness", verify=ctx)
 
     # assert
     assert response.status_code == HTTPStatus.OK
@@ -41,8 +43,9 @@ def test_liveness() -> None:
 @mark.rest
 @mark.health
 def test_readiness() -> None:
+    """Test für die Readiness-Endpoint."""
     # act
-    response: Final = get(f"{health_url}/readiness", verify=ctx)
+    response: Final = get(f"{HEALTH_URL}/readiness", verify=ctx)
 
     # assert
     assert response.status_code == HTTPStatus.OK

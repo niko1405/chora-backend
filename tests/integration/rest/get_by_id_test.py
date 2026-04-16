@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103, I001
+# ruff: noqa: S101, D103, I001  # noqa: RUF100
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ from http import HTTPStatus
 from typing import Final
 from httpx import get
 from pytest import mark
-from tests.integration.common_test import ctx, rest_url, song_rest_url
+from tests.integration.common_test import ctx, REST_URL, SONG_REST_URL
 
 
 ARTIST_ID_ADMIN: Final = 1000
@@ -32,9 +32,10 @@ SONG_ID_ALICE_FIRST: Final = 3010
 @mark.rest
 @mark.get_request
 def test_get_artist_by_id() -> None:
+    """Teste GET-Anfrage mit vorhandener Artist-ID."""
     # act
     response: Final = get(
-        f"{rest_url}/{ARTIST_ID_ADMIN}",
+        f"{REST_URL}/{ARTIST_ID_ADMIN}",
         verify=ctx,
     )
 
@@ -48,8 +49,9 @@ def test_get_artist_by_id() -> None:
 @mark.rest
 @mark.get_request
 def test_get_artist_by_id_not_found() -> None:
+    """Teste GET-Anfrage mit nicht vorhandener Artist-ID."""
     response: Final = get(
-        f"{rest_url}/999999",
+        f"{REST_URL}/999999",
         verify=ctx,
     )
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -58,9 +60,10 @@ def test_get_artist_by_id_not_found() -> None:
 @mark.rest
 @mark.get_request
 def test_get_song_by_id() -> None:
+    """Teste GET-Anfrage mit vorhandener Song-ID."""
     # act
     response: Final = get(
-        f"{song_rest_url}/{SONG_ID_ADMIN}",
+        f"{SONG_REST_URL}/{SONG_ID_ADMIN}",
         params={"artist_id": ARTIST_ID_ADMIN},
         verify=ctx,
     )
@@ -76,8 +79,9 @@ def test_get_song_by_id() -> None:
 @mark.rest
 @mark.get_request
 def test_get_songs_by_artist_id() -> None:
+    """Teste GET-Anfrage mit vorhandener Artist-ID."""
     response: Final = get(
-        song_rest_url,
+        SONG_REST_URL,
         params={"artist_id": ARTIST_ID_ALICE},
         verify=ctx,
     )
@@ -94,8 +98,9 @@ def test_get_songs_by_artist_id() -> None:
 @mark.rest
 @mark.get_request
 def test_get_songs_by_artist_id_not_found() -> None:
+    """Teste GET-Anfrage mit nicht vorhandener Artist-ID."""
     response: Final = get(
-        song_rest_url,
+        SONG_REST_URL,
         params={"artist_id": 999999},
         verify=ctx,
     )
@@ -106,8 +111,9 @@ def test_get_songs_by_artist_id_not_found() -> None:
 @mark.get_request
 @mark.parametrize("artist_id,song_id", [(999999, 1000), (1000, 999999)])
 def test_get_song_by_id_not_found(artist_id: int, song_id: int) -> None:
+    """Teste GET-Anfrage mit nicht vorhandener Artist-ID oder Song-ID."""
     response: Final = get(
-        f"{song_rest_url}/{song_id}",
+        f"{SONG_REST_URL}/{song_id}",
         params={"artist_id": artist_id},
         verify=ctx,
     )

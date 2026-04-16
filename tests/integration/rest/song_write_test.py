@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101, D103  # noqa: RUF100
 # Copyright (C) 2026 - present Juergen Zimmermann, Hochschule Karlsruhe
 
 """Tests fuer POST/PUT/DELETE bei Song-Endpunkten - verwendet Testdaten aus CSV."""
@@ -15,8 +15,9 @@ from tests.integration.common_test import (
     ARTIST_CLEO_ID,
     ctx,
     login,
-    song_rest_url,
+    SONG_REST_URL,
 )
+
 
 @mark.rest
 @mark.post_request
@@ -37,7 +38,7 @@ def test_post_song() -> None:
 
     # act
     response: Final = post(
-        song_rest_url,
+        SONG_REST_URL,
         json=song_payload,
         headers=headers,
         verify=ctx,
@@ -60,7 +61,7 @@ def test_put_song() -> None:
     auth_headers = {"Authorization": f"Bearer {token}"}
 
     create_song_response: Final = post(
-        song_rest_url,
+        SONG_REST_URL,
         json={
             "titel": "Old Song",
             "genres": ["Rock"],
@@ -78,7 +79,7 @@ def test_put_song() -> None:
 
     # act
     response: Final = put(
-        f"{song_rest_url}/{song_id}",
+        f"{SONG_REST_URL}/{song_id}",
         json={
             "titel": "Updated Song",
             "genres": ["Jazz"],
@@ -105,7 +106,7 @@ def test_delete_song() -> None:
     auth_headers = {"Authorization": f"Bearer {token}"}
 
     create_song_response: Final = post(
-        song_rest_url,
+        SONG_REST_URL,
         json={
             "titel": "Delete Song",
             "genres": ["Metal"],
@@ -123,7 +124,7 @@ def test_delete_song() -> None:
 
     # act
     response: Final = delete(
-        f"{song_rest_url}/{song_id}",
+        f"{SONG_REST_URL}/{song_id}",
         headers=auth_headers,
         verify=ctx,
     )
@@ -135,11 +136,12 @@ def test_delete_song() -> None:
 @mark.rest
 @mark.post_request
 def test_post_song_artist_not_found() -> None:
+    """Teste Song-Erstellung mit nicht vorhandenem Artist."""
     token: Final = login()
     headers = {"Authorization": f"Bearer {token}"}
 
     response: Final = post(
-        song_rest_url,
+        SONG_REST_URL,
         json={
             "titel": "Ghost Song",
             "genres": ["Rock"],
@@ -157,11 +159,12 @@ def test_post_song_artist_not_found() -> None:
 @mark.rest
 @mark.post_request
 def test_post_song_titel_exists() -> None:
+    """Teste Song-Erstellung mit bereits vorhandenem Titel."""
     token: Final = login()
     headers = {"Authorization": f"Bearer {token}"}
 
     response: Final = post(
-        song_rest_url,
+        SONG_REST_URL,
         json={
             "titel": "Glass Horizon",
             "genres": ["Rock"],
@@ -179,11 +182,12 @@ def test_post_song_titel_exists() -> None:
 @mark.rest
 @mark.put_request
 def test_put_song_not_found() -> None:
+    """Teste Song-Update mit nicht vorhandener Song-ID."""
     token: Final = login()
     headers = {"Authorization": f"Bearer {token}"}
 
     response: Final = put(
-        f"{song_rest_url}/999999",
+        f"{SONG_REST_URL}/999999",
         json={
             "titel": "Missing Song",
             "genres": ["Rock"],
@@ -201,11 +205,12 @@ def test_put_song_not_found() -> None:
 @mark.rest
 @mark.put_request
 def test_put_song_titel_exists() -> None:
+    """Teste Song-Update mit bereits vorhandenem Titel."""
     token: Final = login()
     headers = {"Authorization": f"Bearer {token}"}
 
     response: Final = put(
-        f"{song_rest_url}/3020",
+        f"{SONG_REST_URL}/3020",
         json={
             "titel": "Glass Horizon",
             "genres": ["Rock"],
@@ -223,11 +228,12 @@ def test_put_song_titel_exists() -> None:
 @mark.rest
 @mark.delete_request
 def test_delete_song_not_found() -> None:
+    """Teste Song-Löschung mit nicht vorhandener Song-ID."""
     token: Final = login()
     headers = {"Authorization": f"Bearer {token}"}
 
     response: Final = delete(
-        f"{song_rest_url}/999999",
+        f"{SONG_REST_URL}/999999",
         headers=headers,
         verify=ctx,
     )

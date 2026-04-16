@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101, D103  # noqa: RUF100
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ from tests.integration.common_test import (
     ARTIST_ALICE_EMAIL,
     ARTIST_ALICE_ID,
     ctx,
-    graphql_url,
+    GRAPHQL_URL,
     login_graphql,
 )
 
@@ -62,7 +62,7 @@ def test_query_id() -> None:
     query: Final = {"query": query_str}
 
     # act
-    response: Final = post(graphql_url, json=query, headers=headers, verify=ctx)
+    response: Final = post(GRAPHQL_URL, json=query, headers=headers, verify=ctx)
 
     # assert
     assert response.status_code == HTTPStatus.OK
@@ -97,7 +97,7 @@ def test_query_id_notfound() -> None:
     }
 
     # act
-    response: Final = post(graphql_url, json=query, headers=headers, verify=ctx)
+    response: Final = post(GRAPHQL_URL, json=query, headers=headers, verify=ctx)
 
     # assert
     assert response.status_code == HTTPStatus.OK
@@ -133,7 +133,7 @@ def test_query_artists_by_email() -> None:
     query: Final = {"query": query_str}
 
     # act
-    response: Final = post(graphql_url, json=query, headers=headers, verify=ctx)
+    response: Final = post(GRAPHQL_URL, json=query, headers=headers, verify=ctx)
 
     # assert
     assert response.status_code == HTTPStatus.OK
@@ -166,7 +166,7 @@ def test_query_artists_by_email_notfound() -> None:
     }
 
     # act
-    response: Final = post(graphql_url, json=query, headers=headers, verify=ctx)
+    response: Final = post(GRAPHQL_URL, json=query, headers=headers, verify=ctx)
 
     # assert
     assert response.status_code == HTTPStatus.OK
@@ -205,7 +205,7 @@ def test_query_artists_by_name() -> None:
     query: Final = {"query": query_str}
 
     # act
-    response: Final = post(graphql_url, json=query, headers=headers, verify=ctx)
+    response: Final = post(GRAPHQL_URL, json=query, headers=headers, verify=ctx)
 
     # assert
     assert response.status_code == HTTPStatus.OK
@@ -231,7 +231,7 @@ def test_query_artists_by_name() -> None:
     }
 
     # act
-    response: Final = post(graphql_url, json=query, headers=headers, verify=ctx)
+    response: Final = post(GRAPHQL_URL, json=query, headers=headers, verify=ctx)
 
     # assert
     assert response.status_code == HTTPStatus.OK

@@ -1,4 +1,4 @@
-# ruff: noqa: S101, D103
+# ruff: noqa: S101, D103  # noqa: RUF100
 # Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,6 @@ from http import HTTPStatus
 from pathlib import Path
 from ssl import create_default_context
 from typing import Any, Final
-from uuid import uuid4
 
 from httpx import get, post
 
@@ -32,57 +31,58 @@ __all__ = [
     "ARTIST_BRUNO_ID",
     "ARTIST_CLEO_EMAIL",
     "ARTIST_CLEO_ID",
+    "BASE_URL",
+    "DB_POPULATE_PATH",
+    "GRAPHQL_PATH",
+    "GRAPHQL_URL",
+    "HEALTH_URL",
+    "KEYCLOAK_POPULATE_PATH",
+    "PASSWORD_ADMIN",
+    "REST_PATH",
+    "REST_URL",
     "SONG_ID_1",
     "SONG_ID_2",
     "SONG_ID_3",
     "SONG_ID_4",
-    "base_url",
+    "SONG_REST_PATH",
+    "SONG_REST_URL",
+    "TIMEOUT",
+    "TOKEN_PATH",
+    "USERNAME_ADMIN",
     "create_artist_payload",
     "ctx",
     "db_populate",
-    "db_populate_path",
-    "graphql_path",
-    "graphql_url",
-    "health_url",
     "keycloak_populate",
-    "keycloak_populate_path",
     "login",
     "login_graphql",
-    "password_admin",
-    "rest_path",
-    "rest_url",
-    "song_rest_path",
-    "song_rest_url",
-    "timeout",
-    "token_path",
-    "username_admin",
 ]
 
-schema: Final = "https"
-port: Final = 8000
+SCHEMA: Final = "https"
+PORT: Final = 8000
 # Fallback IPv6 -> IPv4 insbesondere bei Windows vermeiden; deshalb kein "localhost"
-host: Final = "127.0.0.1"
-base_url: Final = f"{schema}://{host}:{port}"
-rest_path: Final = "/rest/artists"
-rest_url: Final = f"{base_url}{rest_path}"
-song_rest_path: Final = "/rest/songs"
-song_rest_url: Final = f"{base_url}{song_rest_path}"
-health_url: Final = f"{base_url}/health"
-graphql_path: Final = "/graphql"
-graphql_url: Final = f"{base_url}/graphql"
-token_path: Final = "/auth/token"  # noqa: S105
-db_populate_path: Final = "/dev/db_populate"
-keycloak_populate_path: Final = "/dev/keycloak_populate"
-username_admin: Final = "admin"
-password_admin: Final = "p"  # noqa: S105  # NOSONAR
-timeout: Final = 2
+HOST: Final = "127.0.0.1"
+BASE_URL: Final = f"{SCHEMA}://{HOST}:{PORT}"
+REST_PATH: Final = "/rest/artists"
+REST_URL: Final = f"{BASE_URL}{REST_PATH}"
+SONG_REST_PATH: Final = "/rest/songs"
+SONG_REST_URL: Final = f"{BASE_URL}{SONG_REST_PATH}"
+HEALTH_URL: Final = f"{BASE_URL}/health"
+GRAPHQL_PATH: Final = "/graphql"
+GRAPHQL_URL: Final = f"{BASE_URL}/graphql"
+TOKEN_PATH: Final = "/auth/token"  # noqa: S105
+DB_POPULATE_PATH: Final = "/dev/db_populate"
+KEYCLOAK_POPULATE_PATH: Final = "/dev/keycloak_populate"
+USERNAME_ADMIN: Final = "admin"
+PASSWORD_ADMIN: Final = "p"  # noqa: S105  # NOSONAR
+TIMEOUT: Final = 2
 # timeout: Final = 5
-certificate: Final = str(Path("tests") / "integration" / "certificate.crt")
-ctx = create_default_context(cafile=certificate)
+CERTIFICATE: Final = str(Path("tests") / "integration" / "certificate.crt")
+ctx = create_default_context(cafile=CERTIFICATE)
 
 
 def check_readiness() -> None:
-    response: Final = get(f"{health_url}/readiness", verify=ctx)
+    """Pruefe, ob die Anwendung bereit ist, Anfragen zu bearbeiten."""
+    response: Final = get(f"{HEALTH_URL}/readiness", verify=ctx)
     if response.status_code != HTTPStatus.OK:
         raise RuntimeError(f"readiness mit Statuscode {response.status_code}")
     response_body: Final = response.json()
@@ -94,15 +94,16 @@ def check_readiness() -> None:
 
 
 def login(
-    username: str = username_admin,
-    password: str = password_admin,  # NOSONAR
+    username: str = USERNAME_ADMIN,
+    password: str = PASSWORD_ADMIN,  # NOSONAR
 ) -> str:
+    """Hole ein JWT-Token für die Authentifizierung."""
     login_data: Final = {"username": username, "password": password}
     response: Final = post(
-        f"{base_url}{token_path}",
+        f"{BASE_URL}{TOKEN_PATH}",
         json=login_data,
         verify=ctx,
-        timeout=timeout,
+        timeout=TIMEOUT,
     )
     if response.status_code != HTTPStatus.OK:
         raise RuntimeError(f"login() mit Statuscode {response.status_code}")
@@ -114,17 +115,18 @@ def login(
 
 
 def login_graphql(
-    username: str = username_admin,
-    password: str = password_admin,  # NOSONAR
+    username: str = USERNAME_ADMIN,
+    password: str = PASSWORD_ADMIN,  # NOSONAR
 ) -> str:
+    """Hole ein JWT-Token für die Authentifizierung."""
     login_query: Final = {
         "query": f'mutation {{ login(username: "{username}", password: "{password}") {{ token }} }}'  # noqa: E501
     }
     response: Final = post(
-        f"{base_url}{graphql_path}",
+        f"{BASE_URL}{GRAPHQL_PATH}",
         json=login_query,
         verify=ctx,
-        timeout=timeout,
+        timeout=TIMEOUT,
     )
     if response.status_code != HTTPStatus.OK:
         raise RuntimeError(f"login() mit Statuscode {response.status_code}")
@@ -136,11 +138,12 @@ def login_graphql(
 
 
 def db_populate() -> None:
+    """Populiere die Datenbank mit Testdaten."""
     token: Final = login()
     assert token is not None
     headers: Final = {"Authorization": f"Bearer {token}"}
     response: Final = post(
-        f"{base_url}{db_populate_path}",
+        f"{BASE_URL}{DB_POPULATE_PATH}",
         headers=headers,
         verify=ctx,
     )
@@ -148,11 +151,12 @@ def db_populate() -> None:
 
 
 def keycloak_populate() -> None:
+    """Populiere Keycloak mit Testdaten."""
     token: Final = login()
     assert token is not None
     headers: Final = {"Authorization": f"Bearer {token}"}
     response: Final = post(
-        f"{base_url}{keycloak_populate_path}",
+        f"{BASE_URL}{KEYCLOAK_POPULATE_PATH}",
         headers=headers,
         verify=ctx,
     )
