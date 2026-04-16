@@ -120,11 +120,14 @@ class Mutation:
 
         artist_dict = artist_input.__dict__
         artist_dict["vertrag"] = artist_input.vertrag.__dict__
-        artist_dict["songs"] = [song.__dict__ for song in artist_input.songs]
+        artist_dict["songs"] = artist_input.songs
 
         artist_model: Final = ArtistModel.model_validate(artist_dict)
 
-        artist_dto: Final = _write_service.create(artist=artist_model.to_artist())
+        artist_dto: Final = _write_service.create(
+            artist=artist_model.to_artist(),
+            song_ids=artist_model.songs,
+        )
         payload: Final = CreatePayload(id=artist_dto.id)
         logger.debug("payload={}", payload)
         return payload

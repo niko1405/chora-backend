@@ -2,7 +2,7 @@
 
 import strawberry
 
-__all__ = ["ArtistInput", "SongInput", "Suchparameter", "VertragInput"]
+__all__ = ["ArtistInput", "Suchparameter", "VertragInput"]
 
 
 @strawberry.input
@@ -12,12 +12,6 @@ class Suchparameter:
     name: str | None = None
     """Name des Artisten."""
 
-    genre: str | None = None
-    """Genre des Artisten."""
-
-    alter: int | None = None
-    """Alter des Artisten."""
-
     email: str | None = None
     """E-Mail-Adresse des Artisten."""
 
@@ -26,28 +20,20 @@ class Suchparameter:
 class VertragInput:
     """Eingabe für Vertrag."""
 
-    artist_id: int
-    """ID des Artisten."""
+    dauer: int
+    """Dauer des Vertrags in Monaten."""
 
-    agent_id: int
-    """ID des Agenten."""
-
-    start_date: str
+    startdatum: str
     """Startdatum des Vertrags."""
 
-    end_date: str
+    enddatum: str
     """Enddatum des Vertrags."""
 
+    firma: str
+    """Firma, mit der der Vertrag abgeschlossen wurde."""
 
-@strawberry.input
-class SongInput:
-    """Eingabe für Song."""
-
-    title: str
-    """Titel des Songs."""
-
-    duration: int
-    """Dauer des Songs in Sekunden."""
+    gehalt: float
+    """Gehalt, das im Vertrag vereinbart wurde."""
 
 
 @strawberry.input
@@ -57,11 +43,8 @@ class ArtistInput:
     name: str
     """Name des Künstlers."""
 
-    genre: str
-    """Genre des Künstlers."""
-
-    alter: int
-    """Alter des Künstlers."""
+    geburtsdatum: str
+    """Geburtsdatum des Künstlers im Format 'YYYY-MM-DD'."""
 
     email: str
     """E-Mail-Adresse des Künstlers."""
@@ -69,8 +52,8 @@ class ArtistInput:
     vertrag: VertragInput
     """Vertrag des Künstlers."""
 
-    songs: list[SongInput]
-    """Liste der Songs des Künstlers."""
+    songs: list[int]
+    """Liste der Song-IDs des Künstlers."""
 
     username: str
     """Benutzername des Künstlers."""
