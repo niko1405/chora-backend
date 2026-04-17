@@ -227,6 +227,28 @@ uvx ruff format src tests
 uvx ty check src tests
 ```
 
+## CI/CD mit GitHub Actions
+
+Im Projekt sind drei Workflows unter `.github/workflows` vorbereitet:
+
+- `ci.yml`: Führt bei Push und Pull Request Unit-Tests, Ruff und Ty aus.
+- `docker.yml`: Baut das Docker-Image und pusht es (außer bei Pull Requests) nach GHCR unter `ghcr.io/<owner>/chora`.
+- `docs.yml`: Baut die MkDocs-Dokumentation und deployed sie auf GitHub Pages.
+
+### Einmalige Einrichtung
+
+1. Dateien committen und nach GitHub pushen.
+2. In GitHub unter **Settings > Pages** als Source **GitHub Actions** auswählen.
+3. Sicherstellen, dass GitHub Actions im Repository erlaubt ist (Settings > Actions).
+4. Optional im Package-Bereich die Sichtbarkeit des GHCR-Images anpassen (public/private).
+
+### Nutzung im Alltag
+
+- Bei jedem Pull Request auf `main` läuft der CI-Check automatisch.
+- Bei Push auf `main` wird zusätzlich das Docker-Image gebaut.
+- Für Versionen einen Git-Tag wie `v2026.4.1` erstellen, damit ein sauber versioniertes Image-Tag erzeugt wird.
+- Die Doku wird bei Änderungen an `docs/**`, `mkdocs.yml`, `src/**` und `README.md` neu veröffentlicht.
+
 ## Hinweise zur Entwicklung
 
 - Die DB-Struktur liegt in `src/chora/config/resources/postgresql/create.sql`.
