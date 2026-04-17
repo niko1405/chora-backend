@@ -168,7 +168,7 @@ dependencies = [
     "PyYAML>=6.0.3",
     # https://requests.readthedocs.io
     # fuer python-keycloak
-    "requests==2.32.5",
+    "requests>=2.33.0",
     # https://www.sqlalchemy.org
     # nutzt greenlet: unterstuetzt NICHT free-threaded CPython
     "SQLAlchemy>=2.0.48",

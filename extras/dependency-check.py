@@ -23,10 +23,10 @@ import subprocess  # noqa: S404
 from pathlib import Path
 from sysconfig import get_platform
 
-nvd_api_key = "47fbc0a4-9240-4fda-9a26-d7d5624c16bf"
-project = "FastAPI"
+nvd_api_key = "603b64b8-5e55-4353-affe-248690c2757f"
+project = "Chora"
 
-base_script = "dependency-check"
+base_script = "dependency-check.sh"
 betriebssystem = get_platform()
 if betriebssystem in {"win-amd64", "win-arm64", "win32"}:
     base_exec_path = Path("C:/") / "Zimmermann"
@@ -34,8 +34,8 @@ if betriebssystem in {"win-amd64", "win-arm64", "win32"}:
     base_script += ".bat"
     base_data_path = Path("C:\\") / "Zimmermann"
 else:
-    base_exec_path = Path("Zimmermann")
-    base_data_path = Path("Zimmermann")
+    base_exec_path = Path("/home/u7411") / "Zimmermann"
+    base_data_path = Path("/home/u7411") / "Zimmermann"
 
 script = base_exec_path / "dependency-check" / "bin" / base_script
 print(f"script={script}")

@@ -94,7 +94,7 @@ Instrumentator().instrument(app).expose(app)
 
 # GZip-Middleware für die Komprimierung von Antworten hinzufügen, wenn die Antwortgröße
 # mindestens 500 Bytes beträgt
-app.add_middleware(GZipMiddleware, minimum_size=500)  # ty:ignore[invalid-argument-type]
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 
 # Middleware zum Protokollieren der Anforderungsmethode und URL hinzufügen

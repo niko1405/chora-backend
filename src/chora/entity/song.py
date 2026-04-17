@@ -57,7 +57,7 @@ class Song(Base):
     dauer: Mapped[int]
     """Die Dauer des Songs in Sekunden"""
 
-    genres: InitVar[list[Genre] | None]
+    genres: InitVar[list[Genre] | None]  # ty:ignore[invalid-type-form]
     """Die Genres des Songs als Liste von Genre-Enum-Werten"""
 
     artists: Mapped[list[Artist]] = relationship(
